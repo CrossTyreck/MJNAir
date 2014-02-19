@@ -1,0 +1,19 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\SpeedSlider.cs">
+    <Files>
+      <File FileName="Assets\SpeedSlider.cs" Line="1" Column="1" />
+      <File FileName="Assets\SpeedSlider.cs" Line="1" Column="1" />
+      <File FileName="Assets\WelcomeScreeenPosition.cs" Line="1" Column="1" />
+      <File FileName="Assets\TopLeft.cs" Line="1" Column="1" />
+      <File FileName="Assets\TopRight.cs" Line="1" Column="1" />
+      <File FileName="Assets\BottomLeft.cs" Line="1" Column="1" />
+      <File FileName="Assets\BottomRight.cs" Line="1" Column="1" />
+      <File FileName="Assets\MouseDrawing.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
