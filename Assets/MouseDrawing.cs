@@ -6,19 +6,22 @@ public class MouseDrawing : MonoBehaviour
 {
     enum CameraType
     {
-        Main,
-        TopDown
+        PerspectiveEditing,
+        TopDownEditing,
+        Copter
     }
 
     public Camera gameCam;
     public Camera topDownCam;
+    public Camera copterCam;
     public GameObject Arrow;
     public LineRenderer Lines;
     List<GameObject> PyramidList = new List<GameObject>();
     int mouseDragPoint = -1;
+    int selPoint = -1;
     Vector3 pMouse = Vector3.zero;
     List<Vector3> points = new List<Vector3>();
-    CameraType camtype = CameraType.TopDown;
+    CameraType camtype = CameraType.TopDownEditing;
     int speed;
     int lineres = 50;
     public Terrain t;
@@ -49,11 +52,14 @@ public class MouseDrawing : MonoBehaviour
     {
         switch (camtype)
         {
-            case CameraType.TopDown:
+            case CameraType.TopDownEditing:
                 CameraRayCastingOnClick(topDownCam);
                 break;
-            case CameraType.Main:
+            case CameraType.PerspectiveEditing:
                 SelectTriangleAndDrag();
+                break;
+            case CameraType.Copter:
+
                 break;
         }
 
@@ -88,6 +94,12 @@ public class MouseDrawing : MonoBehaviour
         GUI.Box(new Rect(10, 825, 250, 25), "Position counter: " + pathPosCount);
         GUI.Box(new Rect(10, 850, 250, 25), "Position counter: " + pathPosCount);
 
+		if (selPoint > -1) {
+			if(GUI.Button( new Rect(Camera.main.WorldToScreenPoint(points[mouseDragPoint]).x, Camera.main.WorldToScreenPoint(points[mouseDragPoint]).y, 300, 150), "Location: " + points[mouseDragPoint].ToString()))
+			{
+				Debug.Log (" I AM SUPER! ");
+			}
+		}
         if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
         {
             drawingPath = false;
@@ -111,7 +123,6 @@ public class MouseDrawing : MonoBehaviour
 
         direction = Vector3.Normalize(target - copter.transform.position);
         scale = Vector3.Dot(copter.transform.forward, direction);
-        direction.y = 0f;
         direction = Vector3.Normalize(direction);
         cross = Vector3.Cross(copter.transform.forward, direction);
 
@@ -148,7 +159,7 @@ public class MouseDrawing : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            mouseDragPoint = getIndexOnClick(gameCam);
+            selPoint = mouseDragPoint = getIndexOnClick(gameCam);
             Debug.Log(mouseDragPoint);
         }
         if (mouseDragPoint > -1)
@@ -171,7 +182,7 @@ public class MouseDrawing : MonoBehaviour
                 mouseDragPoint = -1;
             }
         }
-
+        pMouse = Input.mousePosition;
     }
     int getIndexOnClick(Camera cam)
     {
@@ -229,21 +240,26 @@ public class MouseDrawing : MonoBehaviour
         }
     }
 
-
-
     void CameraSwitch()
     {
         switch (camtype)
         {
-            case CameraType.Main:
-                camtype = CameraType.TopDown;
+            case CameraType.PerspectiveEditing:
+                camtype = CameraType.TopDownEditing;
                 topDownCam.enabled = true;
+                copterCam.enabled = false;
                 gameCam.enabled = false;
                 break;
-            case CameraType.TopDown:
-                camtype = CameraType.Main;
+            case CameraType.TopDownEditing:
+                camtype = CameraType.PerspectiveEditing;
                 topDownCam.enabled = false;
+                copterCam.enabled = false;
                 gameCam.enabled = true;
+                break;
+            case CameraType.Copter:
+                topDownCam.enabled = false;
+                gameCam.enabled = false;
+                copterCam.enabled = true;
                 break;
         }
     }

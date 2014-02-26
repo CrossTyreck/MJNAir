@@ -40,3 +40,14 @@ C:\Users\cohamilt\Desktop\MJNAir (2)\JasonRyanTestCode\Temp\bin\Debug\Unity.Data
 C:\Users\cohamilt\Desktop\MJNAir (2)\JasonRyanTestCode\Temp\bin\Debug\ICSharpCode.NRefactory.dll
 C:\Users\cohamilt\Desktop\MJNAir (2)\JasonRyanTestCode\obj\Debug\Assembly-CSharp.dll
 C:\Users\cohamilt\Desktop\MJNAir (2)\JasonRyanTestCode\obj\Debug\Assembly-CSharp.pdb
+C:\Users\jpryan3\Desktop\MJNAir\Temp\bin\Debug\Assembly-CSharp.dll
+C:\Users\jpryan3\Desktop\MJNAir\Temp\bin\Debug\Assembly-CSharp.pdb
+C:\Users\jpryan3\Desktop\MJNAir\Temp\bin\Debug\UnityEditor.dll
+C:\Users\jpryan3\Desktop\MJNAir\Temp\bin\Debug\UnityEngine.dll
+C:\Users\jpryan3\Desktop\MJNAir\Temp\bin\Debug\Mono.Cecil.dll
+C:\Users\jpryan3\Desktop\MJNAir\Temp\bin\Debug\nunit.framework.dll
+C:\Users\jpryan3\Desktop\MJNAir\Temp\bin\Debug\Unity.DataContract.dll
+C:\Users\jpryan3\Desktop\MJNAir\Temp\bin\Debug\ICSharpCode.NRefactory.dll
+C:\Users\jpryan3\Desktop\MJNAir\obj\Debug\Assembly-CSharp-vs.csprojResolveAssemblyReference.cache
+C:\Users\jpryan3\Desktop\MJNAir\obj\Debug\Assembly-CSharp.dll
+C:\Users\jpryan3\Desktop\MJNAir\obj\Debug\Assembly-CSharp.pdb
