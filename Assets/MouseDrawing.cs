@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class MouseDrawing : MonoBehaviour
 {
+
+    #region Variable Definitions
     enum CameraType
     {
         PerspectiveEditing,
@@ -37,6 +39,7 @@ public class MouseDrawing : MonoBehaviour
     public bool drawingPath = false;
     public GUITexture startButton;
 
+    #endregion
 
     void Start()
     {
@@ -118,6 +121,8 @@ public class MouseDrawing : MonoBehaviour
 
     }
 
+    #region CopterMovement
+
     void SetCopterDirection()
     {
 
@@ -154,50 +159,10 @@ public class MouseDrawing : MonoBehaviour
         }
     }
 
-    void SelectTriangleAndDrag()
-    {
+    #endregion
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            selPoint = mouseDragPoint = getIndexOnClick(gameCam);
-            Debug.Log(mouseDragPoint);
-        }
-        if (mouseDragPoint > -1)
-        {
-            Vector3 dif = (Input.mousePosition - pMouse);
-            Ray r = gameCam.ScreenPointToRay(Input.mousePosition);
-            float t = (points[mouseDragPoint].y - r.origin.y) / r.direction.y;
-            if (Input.GetKey(KeyCode.LeftShift))
-                points[mouseDragPoint] = r.GetPoint(t);
-            else
-                points[mouseDragPoint] += new Vector3(0, dif.y, 0);
-            Lines.SetPosition(mouseDragPoint, points[mouseDragPoint]);
-            PyramidList[mouseDragPoint].transform.position = points[mouseDragPoint];
-            PyramidList[mouseDragPoint].transform.LookAt(points[mouseDragPoint + 1]);
+    #region Path drawing
 
-
-            if (Input.GetMouseButtonUp(0))
-            {
-                PyramidList[mouseDragPoint].renderer.material.color = new Color(0.4f, 1f, 0.4f);
-                mouseDragPoint = -1;
-            }
-        }
-        pMouse = Input.mousePosition;
-    }
-    int getIndexOnClick(Camera cam)
-    {
-        if (points.Count > 0)
-        {
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, cam.farClipPlane, 1 << 9))
-            {
-                hit.collider.renderer.material.color = Color.black;
-                return PyramidList.IndexOf(hit.collider.gameObject);
-            }
-        }
-        return -1;
-    }
     void CameraRayCastingOnClick(Camera cam)
     {
         if (drawingPath)
@@ -240,6 +205,55 @@ public class MouseDrawing : MonoBehaviour
         }
     }
 
+    int getIndexOnClick(Camera cam)
+    {
+        if (points.Count > 0)
+        {
+            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, cam.farClipPlane, 1 << 9))
+            {
+                hit.collider.renderer.material.color = Color.black;
+                return PyramidList.IndexOf(hit.collider.gameObject);
+            }
+        }
+        return -1;
+    }
+
+    void SelectTriangleAndDrag()
+    {
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            selPoint = mouseDragPoint = getIndexOnClick(gameCam);
+            Debug.Log(mouseDragPoint);
+        }
+        if (mouseDragPoint > -1)
+        {
+            Vector3 dif = (Input.mousePosition - pMouse);
+            Ray r = gameCam.ScreenPointToRay(Input.mousePosition);
+            float t = (points[mouseDragPoint].y - r.origin.y) / r.direction.y;
+            if (Input.GetKey(KeyCode.LeftShift))
+                points[mouseDragPoint] = r.GetPoint(t);
+            else
+                points[mouseDragPoint] += new Vector3(0, dif.y, 0);
+            Lines.SetPosition(mouseDragPoint, points[mouseDragPoint]);
+            PyramidList[mouseDragPoint].transform.position = points[mouseDragPoint];
+            PyramidList[mouseDragPoint].transform.LookAt(points[mouseDragPoint + 1]);
+
+
+            if (Input.GetMouseButtonUp(0))
+            {
+                PyramidList[mouseDragPoint].renderer.material.color = new Color(0.4f, 1f, 0.4f);
+                mouseDragPoint = -1;
+            }
+        }
+        pMouse = Input.mousePosition;
+    }
+
+    #endregion
+    
+    #region User Controls
     void CameraSwitch()
     {
         switch (camtype)
@@ -263,5 +277,5 @@ public class MouseDrawing : MonoBehaviour
                 break;
         }
     }
-
+    #endregion
 }
