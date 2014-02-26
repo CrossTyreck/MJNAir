@@ -4,18 +4,17 @@ using System.Collections.Generic;
 
 public class MouseDrawing : MonoBehaviour
 {
-
     #region Variable Definitions
     enum CameraType
     {
-        PerspectiveEditing,
-        TopDownEditing,
-        Copter
+        PerspectiveEditing = 0,
+        TopDownEditing = 1,
+        Copter = 2
     }
 
-    public Camera gameCam;
-    public Camera topDownCam;
-    public Camera copterCam;
+    public Camera PerspectiveEditingCam;
+    public Camera TopDownEditingCam;
+    public Camera CopterCam;
     public GameObject Arrow;
     public LineRenderer Lines;
     List<GameObject> PyramidList = new List<GameObject>();
@@ -47,7 +46,7 @@ public class MouseDrawing : MonoBehaviour
         moving = false;
         drawingPath = true;
         startButton.enabled = false;
-        gameCam.enabled = false;
+        PerspectiveEditingCam.enabled = false;
         speed = 0;
     }
 
@@ -56,7 +55,7 @@ public class MouseDrawing : MonoBehaviour
         switch (camtype)
         {
             case CameraType.TopDownEditing:
-                CameraRayCastingOnClick(topDownCam);
+                CameraRayCastingOnClick(TopDownEditingCam);
                 break;
             case CameraType.PerspectiveEditing:
                 SelectTriangleAndDrag();
@@ -82,13 +81,9 @@ public class MouseDrawing : MonoBehaviour
             SetCopterDirection();
             MovingAlong();
         }
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-
-            CameraSwitch();
-        }
+        CameraChecking();        
     }
-
+    Rect guiRect = new Rect();
     void OnGUI()
     {
         
@@ -96,13 +91,17 @@ public class MouseDrawing : MonoBehaviour
         GUI.Box(new Rect(10, 800, 250, 25), Vector3.Distance(target, copter.transform.position).ToString());
         GUI.Box(new Rect(10, 825, 250, 25), "Position counter: " + pathPosCount);
         GUI.Box(new Rect(10, 850, 250, 25), "Position counter: " + pathPosCount);
-
-		if (selPoint > -1) {
-			if(GUI.Button( new Rect(Camera.main.WorldToScreenPoint(points[mouseDragPoint]).x, Camera.main.WorldToScreenPoint(points[mouseDragPoint]).y, 300, 150), "Location: " + points[mouseDragPoint].ToString()))
-			{
-				Debug.Log (" I AM SUPER! ");
-			}
-		}
+        if (selPoint > -1)
+        {
+            guiRect = new Rect(PerspectiveEditingCam.WorldToScreenPoint(points[selPoint]).x, Screen.height - PerspectiveEditingCam.WorldToScreenPoint(points[selPoint]).y, 200, 100);
+            if (GUI.Button(guiRect, "Location: " + points[selPoint].ToString()))
+            {
+               
+            }                
+        }
+        
+        
+        
         if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
         {
             drawingPath = false;
@@ -118,11 +117,9 @@ public class MouseDrawing : MonoBehaviour
             pathPosCount++;
             copter.SetActive(true);
         }
-
     }
 
     #region CopterMovement
-
     void SetCopterDirection()
     {
 
@@ -162,7 +159,6 @@ public class MouseDrawing : MonoBehaviour
     #endregion
 
     #region Path drawing
-
     void CameraRayCastingOnClick(Camera cam)
     {
         if (drawingPath)
@@ -205,6 +201,7 @@ public class MouseDrawing : MonoBehaviour
         }
     }
 
+
     int getIndexOnClick(Camera cam)
     {
         if (points.Count > 0)
@@ -225,13 +222,27 @@ public class MouseDrawing : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            selPoint = mouseDragPoint = getIndexOnClick(gameCam);
-            Debug.Log(mouseDragPoint);
+            if (selPoint == -1)
+            {
+                int t = getIndexOnClick(PerspectiveEditingCam);
+                selPoint = t;
+                mouseDragPoint = t;
+            }
+            else
+            {
+                if (!guiRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
+                {
+                    Debug.Log(Input.mousePosition.ToString());
+                    Debug.Log(guiRect.x.ToString() + " " + guiRect.y.ToString());
+                    selPoint = -1;
+                }
+            }
+            
         }
         if (mouseDragPoint > -1)
         {
             Vector3 dif = (Input.mousePosition - pMouse);
-            Ray r = gameCam.ScreenPointToRay(Input.mousePosition);
+            Ray r = PerspectiveEditingCam.ScreenPointToRay(Input.mousePosition);
             float t = (points[mouseDragPoint].y - r.origin.y) / r.direction.y;
             if (Input.GetKey(KeyCode.LeftShift))
                 points[mouseDragPoint] = r.GetPoint(t);
@@ -240,12 +251,15 @@ public class MouseDrawing : MonoBehaviour
             Lines.SetPosition(mouseDragPoint, points[mouseDragPoint]);
             PyramidList[mouseDragPoint].transform.position = points[mouseDragPoint];
             PyramidList[mouseDragPoint].transform.LookAt(points[mouseDragPoint + 1]);
-
+            if(mouseDragPoint > 0)
+                PyramidList[mouseDragPoint - 1].transform.LookAt(points[mouseDragPoint]);
 
             if (Input.GetMouseButtonUp(0))
             {
                 PyramidList[mouseDragPoint].renderer.material.color = new Color(0.4f, 1f, 0.4f);
                 mouseDragPoint = -1;
+                Debug.Log(mouseDragPoint);
+                Debug.Log(selPoint);
             }
         }
         pMouse = Input.mousePosition;
@@ -254,26 +268,38 @@ public class MouseDrawing : MonoBehaviour
     #endregion
     
     #region User Controls
+    void CameraChecking()
+    {
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            camtype = (CameraType)(((int)camtype + 1) % 3);
+            CameraSwitch();
+        }
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            camtype = ((camtype - 1) < 0 ? camtype = CameraType.Copter : camtype--);
+            CameraSwitch();
+        }
+
+    }
     void CameraSwitch()
     {
         switch (camtype)
         {
             case CameraType.PerspectiveEditing:
-                camtype = CameraType.TopDownEditing;
-                topDownCam.enabled = true;
-                copterCam.enabled = false;
-                gameCam.enabled = false;
+                TopDownEditingCam.enabled = false;
+                CopterCam.enabled = false;
+                PerspectiveEditingCam.enabled = true;
                 break;
             case CameraType.TopDownEditing:
-                camtype = CameraType.PerspectiveEditing;
-                topDownCam.enabled = false;
-                copterCam.enabled = false;
-                gameCam.enabled = true;
+                TopDownEditingCam.enabled = true;
+                CopterCam.enabled = false;
+                PerspectiveEditingCam.enabled = false;
                 break;
             case CameraType.Copter:
-                topDownCam.enabled = false;
-                gameCam.enabled = false;
-                copterCam.enabled = true;
+                TopDownEditingCam.enabled = false;
+                PerspectiveEditingCam.enabled = false;
+                CopterCam.enabled = true;
                 break;
         }
     }
