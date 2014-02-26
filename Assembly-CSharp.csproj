@@ -48,12 +48,14 @@
   <ItemGroup>
      <Compile Include="Assets\BottomLeft.cs" />
      <Compile Include="Assets\BottomRight.cs" />
+     <Compile Include="Assets\Directives.cs" />
      <Compile Include="Assets\HeightSlider.cs" />
      <Compile Include="Assets\Line.cs" />
      <Compile Include="Assets\MouseDrawing.cs" />
      <Compile Include="Assets\Radar.cs" />
      <Compile Include="Assets\RadarCube.cs" />
      <Compile Include="Assets\RadarPlane.cs" />
+     <Compile Include="Assets\ScoringSystem.cs" />
      <Compile Include="Assets\SpeedSlider.cs" />
      <Compile Include="Assets\TopLeft.cs" />
      <Compile Include="Assets\TopRight.cs" />

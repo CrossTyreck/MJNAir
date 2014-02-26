@@ -91,7 +91,7 @@ public class MouseDrawing : MonoBehaviour
 
     void OnGUI()
     {
-
+        
         GUI.Box(new Rect(10, 775, 250, 25), "Copter Position: " + copter.transform.position.ToString());
         GUI.Box(new Rect(10, 800, 250, 25), Vector3.Distance(target, copter.transform.position).ToString());
         GUI.Box(new Rect(10, 825, 250, 25), "Position counter: " + pathPosCount);
