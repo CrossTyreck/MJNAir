@@ -52,18 +52,7 @@ public class MouseDrawing : MonoBehaviour
 
     void Update()
     {
-        switch (camtype)
-        {
-            case CameraType.TopDownEditing:
-                CameraRayCastingOnClick(TopDownEditingCam);
-                break;
-            case CameraType.PerspectiveEditing:
-                SelectTriangleAndDrag();
-                break;
-            case CameraType.Copter:
-
-                break;
-        }
+        
 
         if (Input.GetMouseButton(0) && !moving)
         {
@@ -81,7 +70,9 @@ public class MouseDrawing : MonoBehaviour
             SetCopterDirection();
             MovingAlong();
         }
-        CameraChecking();        
+        CameraChecking();
+        MouseControls();
+        KeyboardControls();
     }
     Rect guiRect = new Rect();
     void OnGUI()
@@ -262,12 +253,53 @@ public class MouseDrawing : MonoBehaviour
                 Debug.Log(selPoint);
             }
         }
-        pMouse = Input.mousePosition;
     }
 
     #endregion
     
     #region User Controls
+    void KeyboardControls() 
+    {
+
+    }
+    void OnMouseDown()
+    {
+
+    }
+    void OnMouseUp()
+    {
+
+    }
+    void MouseControls()
+    {
+        Vector3 dMouse = Input.mousePosition - pMouse;
+        switch (camtype)
+        {
+            case CameraType.TopDownEditing:
+                CameraRayCastingOnClick(TopDownEditingCam);
+                if (Input.GetMouseButton(2))
+                        TopDownEditingCam.transform.position -= (new Vector3(dMouse.x, 0, dMouse.y) * TopDownEditingCam.orthographicSize) * 0.003f;
+               TopDownEditingCam.orthographicSize -= Input.GetAxis("Mouse ScrollWheel") * 200;
+                break;
+            case CameraType.PerspectiveEditing:
+                SelectTriangleAndDrag();
+                Vector3 terrainCenter = t.transform.position + new Vector3(t.terrainData.size.x, 0, t.terrainData.size.z) / 2;
+                Vector3 campos = PerspectiveEditingCam.transform.position;
+                Vector3 cp = Vector3.Cross(Vector3.up, PerspectiveEditingCam.transform.forward);
+                PerspectiveEditingCam.transform.LookAt(terrainCenter);
+                if(Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 300)
+                    PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 200;
+                else if (Input.GetAxis("Mouse ScrollWheel") < 0)
+                    PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 200;
+                if (Input.GetMouseButton(2))
+                    PerspectiveEditingCam.transform.position = new Vector3(campos.x, Mathf.Clamp(campos.y + dMouse.y, terrainCenter.y + 50f, terrainCenter.y + 500f), campos.z) + cp * dMouse.x * 2;
+                break;
+            case CameraType.Copter:
+
+                break;
+        }
+        pMouse = Input.mousePosition;
+    }
     void CameraChecking()
     {
         if (Input.GetKeyDown(KeyCode.RightArrow))
