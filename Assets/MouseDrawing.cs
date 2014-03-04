@@ -41,6 +41,8 @@ public class MouseDrawing : MonoBehaviour
 
     #endregion
 
+
+    //
     void Start()
     {
         copter.SetActive(false);
@@ -290,21 +292,34 @@ public class MouseDrawing : MonoBehaviour
             case CameraType.TopDownEditing:
                 CameraRayCastingOnClick(TopDownEditingCam);
                 if (Input.GetMouseButton(2))
-                        TopDownEditingCam.transform.position -= (new Vector3(dMouse.x, 0, dMouse.y) * TopDownEditingCam.orthographicSize) * 0.003f;
-               TopDownEditingCam.orthographicSize -= Input.GetAxis("Mouse ScrollWheel") * 200;
+                    TopDownEditingCam.transform.position -= (new Vector3(dMouse.x, 0, dMouse.y) * TopDownEditingCam.orthographicSize) * 0.003f;
+                TopDownEditingCam.orthographicSize -= Input.GetAxis("Mouse ScrollWheel") * 200;
+                float scroll = Input.GetAxis("Mouse ScrollWheel");
+                if (scroll > 0)
+                {
+                    if (TopDownEditingCam.orthographicSize > 200)
+                        TopDownEditingCam.orthographicSize -= scroll * 200;
+                }
+                if (scroll < 0)
+                    TopDownEditingCam.orthographicSize -= scroll * 200;
+
                 break;
             case CameraType.PerspectiveEditing:
                 SelectTriangleAndDrag();
                 Vector3 terrainCenter = t.transform.position + new Vector3(t.terrainData.size.x, 0, t.terrainData.size.z) / 2;
                 Vector3 campos = PerspectiveEditingCam.transform.position;
-                Vector3 cp = Vector3.Cross(Vector3.up, PerspectiveEditingCam.transform.forward);
+                Vector3 cp = -Vector3.Cross(Vector3.up, PerspectiveEditingCam.transform.forward);
                 PerspectiveEditingCam.transform.LookAt(terrainCenter);
-                if(Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 300)
+                if (Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 300)
                     PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 200;
                 else if (Input.GetAxis("Mouse ScrollWheel") < 0)
                     PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 200;
                 if (Input.GetMouseButton(2))
+                {
+                    float distance = (PerspectiveEditingCam.transform.position - terrainCenter).magnitude;
                     PerspectiveEditingCam.transform.position = new Vector3(campos.x, Mathf.Clamp(campos.y + dMouse.y, terrainCenter.y + 50f, terrainCenter.y + 500f), campos.z) + cp * dMouse.x * 2;
+                    PerspectiveEditingCam.transform.position = terrainCenter+(PerspectiveEditingCam.transform.position - terrainCenter).normalized * distance;
+                }
                 break;
             case CameraType.Copter:
 
