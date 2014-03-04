@@ -37,6 +37,7 @@ public class MouseDrawing : MonoBehaviour
     Rect guiRect = new Rect();
     public bool drawingPath = false;
     public GUITexture startButton;
+	public GUITexture batterybar;
     public GUISkin UISkin;
 
     #endregion
@@ -53,6 +54,7 @@ public class MouseDrawing : MonoBehaviour
         speed = 0;
         score = new ScoringSystem();
         score.InitializeScore(); 
+		batterybar.transform.position = new Vector3 (0.3f, 0.5f, 1);
     }
 
     void Update()
