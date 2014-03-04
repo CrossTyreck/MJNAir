@@ -307,18 +307,21 @@ public class MouseDrawing : MonoBehaviour
             case CameraType.PerspectiveEditing:
                 SelectTriangleAndDrag();
                 Vector3 terrainCenter = t.transform.position + new Vector3(t.terrainData.size.x, 0, t.terrainData.size.z) / 2;
-                Vector3 campos = PerspectiveEditingCam.transform.position;
-                Vector3 cp = -Vector3.Cross(Vector3.up, PerspectiveEditingCam.transform.forward);
-                PerspectiveEditingCam.transform.LookAt(terrainCenter);
                 if (Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 300)
                     PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 200;
                 else if (Input.GetAxis("Mouse ScrollWheel") < 0)
                     PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 200;
                 if (Input.GetMouseButton(2))
                 {
-                    float distance = (PerspectiveEditingCam.transform.position - terrainCenter).magnitude;
-                    PerspectiveEditingCam.transform.position = new Vector3(campos.x, Mathf.Clamp(campos.y + dMouse.y, terrainCenter.y + 50f, terrainCenter.y + 500f), campos.z) + cp * dMouse.x * 2;
-                    PerspectiveEditingCam.transform.position = terrainCenter+(PerspectiveEditingCam.transform.position - terrainCenter).normalized * distance;
+                    Vector3 campos = PerspectiveEditingCam.transform.position;
+                    Vector3 v = campos - terrainCenter;
+                    float x = v.x;
+                    float y = v.z;
+                    float theta = -dMouse.x * 0.01f;
+                    float xp = x * Mathf.Cos(theta) - y * Mathf.Sin(theta);
+                    float yp = x * Mathf.Sin(theta) + y * Mathf.Cos(theta);
+                    PerspectiveEditingCam.transform.position = new Vector3(terrainCenter.x + xp, Mathf.Clamp(campos.y + dMouse.y, terrainCenter.y + 50f, terrainCenter.y + 500f), terrainCenter.z + yp);
+                    PerspectiveEditingCam.transform.LookAt(terrainCenter);
                 }
                 break;
             case CameraType.Copter:
