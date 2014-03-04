@@ -11,7 +11,7 @@ public class MouseDrawing : MonoBehaviour
         TopDownEditing = 1,
         Copter = 2
     }
-
+    ScoringSystem score; 
     public Camera PerspectiveEditingCam;
     public Camera TopDownEditingCam;
     public Camera CopterCam;
@@ -34,9 +34,10 @@ public class MouseDrawing : MonoBehaviour
     float scale;
     Space relativeTo = Space.World;
     int pathPosCount = 0;
-
+    Rect guiRect = new Rect();
     public bool drawingPath = false;
     public GUITexture startButton;
+    public GUISkin UISkin;
 
     #endregion
 
@@ -48,6 +49,8 @@ public class MouseDrawing : MonoBehaviour
         startButton.enabled = false;
         PerspectiveEditingCam.enabled = false;
         speed = 0;
+        score = new ScoringSystem();
+        score.InitializeScore(); 
     }
 
     void Update()
@@ -70,18 +73,26 @@ public class MouseDrawing : MonoBehaviour
             SetCopterDirection();
             MovingAlong();
         }
+
         CameraChecking();
         MouseControls();
         KeyboardControls();
     }
-    Rect guiRect = new Rect();
+    
     void OnGUI()
     {
-        
+        GUI.skin = UISkin;
+        GUI.Label(new Rect(Screen.width * 0.5f, 20, 250, 50), "Score: " + score.CurrentScore.ToString());
         GUI.Box(new Rect(10, 775, 250, 25), "Copter Position: " + copter.transform.position.ToString());
         GUI.Box(new Rect(10, 800, 250, 25), Vector3.Distance(target, copter.transform.position).ToString());
         GUI.Box(new Rect(10, 825, 250, 25), "Position counter: " + pathPosCount);
         GUI.Box(new Rect(10, 850, 250, 25), "Position counter: " + pathPosCount);
+
+        if (GUI.Button(new Rect(Screen.width * 0.9f, 775, 150, 50), "Move Control"))
+        {
+            moving = !moving;
+        }
+
         if (selPoint > -1)
         {
             guiRect = new Rect(PerspectiveEditingCam.WorldToScreenPoint(points[selPoint]).x, Screen.height - PerspectiveEditingCam.WorldToScreenPoint(points[selPoint]).y, 200, 100);
@@ -132,7 +143,7 @@ public class MouseDrawing : MonoBehaviour
     void MovingAlong()
     {
 
-        if (Vector3.Distance(target, copter.transform.position) > ((speed + SpeedSlider.speed) * Time.deltaTime))
+        if (Vector3.Distance(target, copter.transform.position) > ((speed + SpeedSlider.speed) * Time.deltaTime) && moving)
         {
             copter.transform.position += direction * (speed + SpeedSlider.speed) * Time.deltaTime;
         }
@@ -143,6 +154,7 @@ public class MouseDrawing : MonoBehaviour
             {
                 target = points[pathPosCount];
                 pathPosCount++;
+                score.CurrentScore += 10; 
             }
         }
     }

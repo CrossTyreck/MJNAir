@@ -51,3 +51,14 @@ C:\Users\jpryan3\Desktop\MJNAir\Temp\bin\Debug\ICSharpCode.NRefactory.dll
 C:\Users\jpryan3\Desktop\MJNAir\obj\Debug\Assembly-CSharp-vs.csprojResolveAssemblyReference.cache
 C:\Users\jpryan3\Desktop\MJNAir\obj\Debug\Assembly-CSharp.dll
 C:\Users\jpryan3\Desktop\MJNAir\obj\Debug\Assembly-CSharp.pdb
+D:\Projects Unity\MJNAir.git\trunk\Temp\bin\Debug\Assembly-CSharp.dll
+D:\Projects Unity\MJNAir.git\trunk\Temp\bin\Debug\Assembly-CSharp.pdb
+D:\Projects Unity\MJNAir.git\trunk\Temp\bin\Debug\UnityEditor.dll
+D:\Projects Unity\MJNAir.git\trunk\Temp\bin\Debug\UnityEngine.dll
+D:\Projects Unity\MJNAir.git\trunk\Temp\bin\Debug\Mono.Cecil.dll
+D:\Projects Unity\MJNAir.git\trunk\Temp\bin\Debug\nunit.framework.dll
+D:\Projects Unity\MJNAir.git\trunk\Temp\bin\Debug\Unity.DataContract.dll
+D:\Projects Unity\MJNAir.git\trunk\Temp\bin\Debug\ICSharpCode.NRefactory.dll
+D:\Projects Unity\MJNAir.git\trunk\obj\Debug\Assembly-CSharp-vs.csprojResolveAssemblyReference.cache
+D:\Projects Unity\MJNAir.git\trunk\obj\Debug\Assembly-CSharp.dll
+D:\Projects Unity\MJNAir.git\trunk\obj\Debug\Assembly-CSharp.pdb
