@@ -60,7 +60,9 @@ public class MouseDrawing : MonoBehaviour
     void Update()
     {
         
-
+		if(Input.GetKeyDown(KeyCode.Escape)){
+			Application.Quit ();
+		}
         if (Input.GetMouseButton(0) && !moving)
         {
             startButton.enabled = false;
