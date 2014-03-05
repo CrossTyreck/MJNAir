@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Directives {
+public class Directive {
 
     /// <summary>
     /// The direction this directive is pointing
@@ -19,9 +19,14 @@ public class Directives {
     public float Altitude { get; set; }
 
     /// <summary>
-    /// Distance from the last point to this point
+    /// Distance from the this point to the next point
     /// </summary>
     public float Distance { get; set; }
+
+    /// <summary>
+    /// This directive's referenced point in world space
+    /// </summary>
+    public Vector3 Position { get; set; }
 
     /// <summary>
     /// Keep the amount of score value to add to the current score.
@@ -46,6 +51,25 @@ public class Directives {
 	void Update () {
 	
 	}
+    /// <summary>
+    /// Creates a directive at the given points, with a look and distance value
+    /// </summary>
+    /// <param name="position"></param>
+    /// <param name="nextPosition"></param>
+    public Directive(Vector3 position, Vector3 nextPosition)
+    {
+        this.Position = position;
+        this.Distance = Vector3.Distance(position, nextPosition);
+        this.LookVector = (nextPosition - position).normalized;
+    }
+    /// <summary>
+    /// Creates a directive at the given point
+    /// </summary>
+    /// <param name="position"></param>
+    public Directive(Vector3 position)
+    {
+        this.Position = position;
+    }
 
     void OnGUI()
     {
