@@ -53,7 +53,7 @@ public class OmniToolOfJustice : MonoBehaviour
         PerspectiveEditingCam.enabled = false;
         speed = 0;
         score = new ScoringSystem();
-        score.InitializeScore(0); 
+        score.InitializeScore(); 
 		batterybar.transform.position = new Vector3 (0.3f, 0.5f, 1);
     }
 
