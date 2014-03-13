@@ -29,7 +29,7 @@ public class ScoringSystem
 
     public void SetScoreAtDirective(Directive directive)
     {
-        CurrentScore += directive.ScoreValue;
+        //CurrentScore += directive.ScoreValue;
     }
 
     public void SetFinalScore()
