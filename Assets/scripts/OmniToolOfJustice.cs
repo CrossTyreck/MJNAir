@@ -120,7 +120,7 @@ public class OmniToolOfJustice : MonoBehaviour
 			moving = !moving;
 		}
 		
-		if (selDirective > 0)
+		if (selDirective > -1)
 		{
 			Directive d = directives[selDirective];
 			Vector3 point = d.Position;
