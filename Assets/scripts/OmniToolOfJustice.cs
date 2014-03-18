@@ -11,7 +11,8 @@ public class OmniToolOfJustice : MonoBehaviour
 		TopDownEditing = 1,
 		Copter = 2
 	}
-	ScoringSystem score; 
+	ScoringSystem score;
+    ScoreBoard gameBoard;
 	public Camera PerspectiveEditingCam;
 	public Camera TopDownEditingCam;
 	public Camera CopterCam;
@@ -27,7 +28,7 @@ public class OmniToolOfJustice : MonoBehaviour
 	CameraType camtype = CameraType.TopDownEditing;
 	float speed;
 	int lineres = 10;
-	public Terrain t;
+	public Terrain gameLevelTerrain;
 	public GameObject copter;
 	Vector3 direction;
 	Vector3 cross;
@@ -41,13 +42,15 @@ public class OmniToolOfJustice : MonoBehaviour
 	public GUITexture startButton;
 	public GUISkin UISkin;
 	public GUIStyle customGUIStyle;
-	
+    public bool endingCondition = false;
 	#endregion
 	
 	
 	//
 	void Start()
 	{
+        gameLevelTerrain = GameObject.FindGameObjectWithTag("GameLevelTerrain").GetComponent<Terrain>();
+        gameBoard = new ScoreBoard(gameLevelTerrain.terrainData);
 		moving = false;
 		drawingPath = true;
 		startButton.enabled = false;
@@ -85,6 +88,7 @@ public class OmniToolOfJustice : MonoBehaviour
 		{
 			SetCopterDirection();
 			MovingAlong();
+            gameBoard.CheckSquareTraversal(copter.transform.position);
 		}
 		else
 		{
@@ -100,7 +104,11 @@ public class OmniToolOfJustice : MonoBehaviour
 			}
 		}
 
-		
+        if (endingCondition)
+        {
+            score.FinalScore += gameBoard.GameBoardScore + gameBoard.GetScoreFromTraversed();
+        }
+
 		CameraChecking();
 		MouseControls();
 		KeyboardControls();
@@ -236,7 +244,7 @@ public class OmniToolOfJustice : MonoBehaviour
 				int x2 = (int)(directives [curDirective].Points [directives [curDirective].Points.Count - 1].x / lineres);
 				int y2 = (int)(directives [curDirective].Points [directives [curDirective].Points.Count - 1].z / lineres);
 				if (x1 != x2 || y1 != y2) {
-					if (t.collider.Raycast (ray, out hit, cam.farClipPlane)) {
+					if (gameLevelTerrain.collider.Raycast (ray, out hit, cam.farClipPlane)) {
 						Vector3 p = new Vector3 (hit.point.x, hit.point.y + 100, hit.point.z);
 						directives [curDirective].Points.Add (p);
 						vertexCount++;
@@ -336,7 +344,7 @@ public class OmniToolOfJustice : MonoBehaviour
 			break;
 		case CameraType.PerspectiveEditing:
 			SelectDirectiveAndDrag();
-			Vector3 terrainCenter = t.transform.position + new Vector3(t.terrainData.size.x, 0, t.terrainData.size.z) / 2;
+			Vector3 terrainCenter = gameLevelTerrain.transform.position + new Vector3(gameLevelTerrain.terrainData.size.x, 0, gameLevelTerrain.terrainData.size.z) / 2;
 			if (Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 300)
 				PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 200;
 			else if (Input.GetAxis("Mouse ScrollWheel") < 0)

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ScoringSystem
 {
@@ -8,12 +9,12 @@ public class ScoringSystem
     public int ProjectedScore { get; set; }
     public int CurrentScore { get; set; }
     public int FinalScore { get; set; }
-
+    public List<Obstacle> Obstacles { get; set; }
 
     // Use this for initialization
     void Start()
     {
-
+       
         ParScore = 0;
         ProjectedScore = 0;
         CurrentScore = 0;
