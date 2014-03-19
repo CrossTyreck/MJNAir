@@ -28,7 +28,7 @@ public class BoardSquare
     /// </summary>
     public int EnergyUsed
     {
-        get;
+		get{ return EnergyUsed; }
         set
         {
             if (!containsObstacle)
@@ -49,7 +49,7 @@ public class BoardSquare
 
     public bool containsObstacle = true;
 
-    public BoardSquare(Vector2 pos, int point, Obstacle? Obstacle = null)
+    public BoardSquare(Vector2 pos, int point, Obstacle Obstacle = null)
     {
         if (Obstacle == null)
             containsObstacle = false;

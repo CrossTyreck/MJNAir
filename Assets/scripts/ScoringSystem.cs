@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class ScoringSystem
+public class ScoringSystem 
 {
 
     public int ParScore { get; set; }
@@ -48,4 +48,10 @@ public class ScoringSystem
         return CurrentScore.ToString();
     }
 
+    void OnGUI()
+    {
+
+        GUI.Box(new Rect(10, 10, 250, 25), "Score: " + CurrentScore.ToString());
+
+    }
 }
