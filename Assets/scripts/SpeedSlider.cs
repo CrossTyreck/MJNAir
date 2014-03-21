@@ -14,14 +14,24 @@ public class SpeedSlider : MonoBehaviour
     }
     public void OnMouseDrag()
     {
-        transform.position = Camera.main.ScreenToViewportPoint(new Vector3((slider.transform.position.x * Screen.width), Mathf.Clamp(Input.mousePosition.y, Screen.height* slider.transform.position.y, (Screen.height * slider.transform.position.y) + (slider.pixelInset.height * 0.65f)), 1));
+       // transform.position = Camera.main.ScreenToViewportPoint(new Vector3((slider.transform.position.x * Screen.width), Mathf.Clamp(Input.mousePosition.y, Screen.height* slider.transform.position.y, (Screen.height * slider.transform.position.y) + (slider.pixelInset.height * 0.65f)), 1));
+        transform.position = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>().ScreenToViewportPoint(new Vector3((slider.transform.position.x * Screen.width), Mathf.Clamp(Input.mousePosition.y, Screen.height * slider.transform.position.y, (Screen.height * slider.transform.position.y) + (slider.pixelInset.height * 0.65f)), 1));
     }
 
     void Update()
     {
 
         speed = Screen.height * transform.position.y;
-
+        if (GameObject.FindGameObjectWithTag("PathEditingCamera").GetComponent<Camera>().enabled)
+        {
+           GameObject.Find("SpeedSlider").SetActive(false);
+           GameObject.Find("SpeedButton").SetActive(false);
+        }
+        else
+        {
+            GameObject.Find("SpeedSlider").SetActive(true);
+            GameObject.Find("SpeedButton").SetActive(true);
+        }
     }
 
    
