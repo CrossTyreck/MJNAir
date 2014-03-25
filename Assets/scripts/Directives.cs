@@ -78,14 +78,16 @@ public class Directive
         this.Pyramid = pyramid;
         this.Pyramid.transform.position = position;
         this.Points.Add(position);
-        this.Alignment = ArcAlignment.YCurve;
     }
     public void Set(Vector3 position, LineRenderer lines, List<Directive> dirs, int id)
     {
         this.Position = position;
         this.Points[0] = position;
         this.Pyramid.transform.position = position;
-        this.Align(lines, dirs, id);
+        int startIndex = 0;
+        for (int i = 0; i < id; i++)
+            startIndex += dirs[i].Points.Count - 1;
+        lines.SetPosition(startIndex, Position);
     }
     private void AlignToMe(LineRenderer lines, Directive me, int startIndex)
     {

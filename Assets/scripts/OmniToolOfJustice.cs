@@ -403,28 +403,28 @@ public class OmniToolOfJustice : MonoBehaviour
     {
         Directive d = directives[selDirective];
         Vector3 point = d.Position;
-        guiRect = new Rect(PerspectiveEditingCam.WorldToScreenPoint(point).x, Screen.height - PerspectiveEditingCam.WorldToScreenPoint(point).y, 200, 40);
+        guiRect = new Rect(PerspectiveEditingCam.WorldToScreenPoint(point).x, Screen.height - PerspectiveEditingCam.WorldToScreenPoint(point).y, 300, 40);
         float x = point.x;
         float y = point.y;
         float z = point.z;
         GUI.Button(guiRect, "Pos X:" + x.ToString("0.0") + " Y:" + y.ToString("0.0") + " Z:" + z.ToString("0.0"));
         if (mouseDragDirective == -1)
         {
-            if (GUI.Button(new Rect(20, 110, 300, 20), "Pos X:" + x.ToString("0.0") + " Y:" + y.ToString("0.0") + " Z:" + z.ToString("0.0")))
+            if (GUI.Button(new Rect(20, 110, 310, 20), "Pos X:" + x.ToString("0.0") + " Y:" + y.ToString("0.0") + " Z:" + z.ToString("0.0")))
             {
                 mouseDragDirective = selDirective;
             }
-            else if (GUI.Button(new Rect(20, 135, 300, 20), "Look X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0")))
+            else if (GUI.Button(new Rect(20, 135, 310, 20), "Look X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0")))
             {
 
             }
             else if (GUI.Button(new Rect(20, 170, 200, 20), "Arc Type: " + d.Alignment.ToString()))
             {
-                d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 6);
+                d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
             }
             else if (GUI.Button(new Rect(230, 160, 90, 20), "CHANGE"))
             {
-                d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 6);
+                d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
             }
             else if (GUI.Button(new Rect(230, 180, 90, 20), "ALIGN"))
             {
@@ -462,7 +462,6 @@ public class OmniToolOfJustice : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            //camtype = (CameraType)(((int)camtype + 1) % 3);
             camtype = (CameraType)(((int)camtype + 1) % 4);
             CameraSwitch();
         }
