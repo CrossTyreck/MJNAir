@@ -13,7 +13,8 @@ public class OmniToolOfJustice : MonoBehaviour
         DualCam = 3
     }
     ScoringSystem score;
-    ScoreBoard gameBoard;
+    ScoreBoard gameGrid;
+    public Terrain gameLevelTerrain;
     public Camera PerspectiveEditingCam;
     public Camera TopDownEditingCam;
     public Camera CopterCam;
@@ -30,7 +31,6 @@ public class OmniToolOfJustice : MonoBehaviour
     CameraType camtype = CameraType.TopDownEditing;
     float speed;
     int lineres = 10;
-    public Terrain gameLevelTerrain;
     public GameObject copter;
     Vector3 direction;
     Vector3 cross;
@@ -45,14 +45,15 @@ public class OmniToolOfJustice : MonoBehaviour
     public GUISkin UISkin;
     public GUIStyle customGUIStyle;
     public bool endingCondition = false;
+    public Transform gameBoard;
     #endregion
 
 
     //
     void Start()
     {
-        gameLevelTerrain = GameObject.FindGameObjectWithTag("GameLevelTerrain").GetComponent<Terrain>();
-        gameBoard = new ScoreBoard(gameLevelTerrain.terrainData);
+
+        gameGrid = new ScoreBoard(gameBoard);
         moving = false;
         drawingPath = true;
         startButton.enabled = false;
@@ -60,7 +61,6 @@ public class OmniToolOfJustice : MonoBehaviour
         speed = 0;
         score = new ScoringSystem();
         score.InitializeScore();
-
         customGUIStyle = new GUIStyle();
         customGUIStyle.fontSize = 14;
         copter.SetActive(false);
@@ -90,7 +90,7 @@ public class OmniToolOfJustice : MonoBehaviour
         {
             SetCopterDirection();
             MovingAlong();
-            gameBoard.CheckSquareTraversal(copter.transform.position);
+
         }
         else
         {
@@ -109,7 +109,7 @@ public class OmniToolOfJustice : MonoBehaviour
 
         if (endingCondition)
         {
-            score.FinalScore += gameBoard.GameBoardScore + gameBoard.GetScoreFromTraversed();
+            score.FinalScore += gameGrid.GameBoardScore + gameGrid.GetScoreFromTraversed();
         }
 
         CameraChecking();

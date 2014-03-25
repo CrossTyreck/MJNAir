@@ -8,27 +8,26 @@ using System.Collections.Generic;
 /// </summary>
 public class ScoreBoard
 {
-
     public int GameBoardScore { get; set; }
-    public List<BoardSquare> GameBoard { get; set; }
+    public BoardSquare[,] GameBoard { get; set; }
 
     // Setup Game Board
-    public ScoreBoard(TerrainData tSize)
+    public ScoreBoard(Transform transform)
     {
-        GameBoard = new List<BoardSquare>();
-        //for (int i = 0; i <= tSize.size.x; i++)
-        //{
+        int x = (int)(transform.localScale.x * 10);
+        int z = (int)(transform.localScale.z * 10);
+        Vector2 offset = new Vector2(transform.position.x - x* 0.5f, transform.position.z - z* 0.5f);
+        GameBoard = new BoardSquare[x, z];
 
-        //    for (int j = 0; j <= tSize.size.z; i++)
-        //    {
+        for (int i = 0; i < x; i++)
+        {
+            for (int j = 0; j < z; j++)
+            {
+                GameBoard[i, j] = new BoardSquare(offset + new Vector2(i, j), 1);
+            }
+        }
 
-        //        GameBoard.Add(new BoardSquare(new Vector2(i, j), 1));
-        //        Debug.Log(GameBoard.Count.ToString());
-        //    }
-        //}
-
-        GameBoardScore = GameBoard.Count;
-
+        GameBoardScore = GameBoard.Length;
     }
 
     /// <summary>

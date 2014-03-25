@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
 
 
 /// <summary>
@@ -9,7 +10,7 @@ public class BoardSquare
 {
 
     /// <summary>
-    /// The Position of this square based on the terrain size
+    /// The Position of this square based on the plane size
     /// </summary>
     public Vector2 Position { get; set; }
 
