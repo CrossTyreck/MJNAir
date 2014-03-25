@@ -113,8 +113,6 @@ public class OmniToolOfJustice : MonoBehaviour
         }
 
         CameraChecking();
-        MouseControls();
-        KeyboardControls();
     }
 
     void OnGUI()
@@ -156,38 +154,7 @@ public class OmniToolOfJustice : MonoBehaviour
             moving = !moving;
         }
 
-        if (selDirective > -1)
-        {
-            Directive d = directives[selDirective];
-            Vector3 point = d.Position;
-
-            guiRect = new Rect(PerspectiveEditingCam.WorldToScreenPoint(point).x, Screen.height - PerspectiveEditingCam.WorldToScreenPoint(point).y, 400, 400);
-            float x = point.x;
-            float y = point.y;
-            float z = point.z;
-            if (GUI.Button(guiRect,
-                           "Location X:" + x.ToString("0.0") + " Y:" + y.ToString("0.0") + " Z:" + z.ToString("0.0") +
-                           "\nLook Vector X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0") +
-                           "\nArc Type: " + d.Alignment.ToString() +
-                           "\nDistance to next Directive: " + d.Distance.ToString("0.0") +
-                           "\nSet speed to: " + d.Speed.ToString() +
-                           "\nWait for: " + d.WaitTime.ToString("0.0") + "s" +
-                           "\nNumber of data points: " + d.Points.Count.ToString(), customGUIStyle))
-            {
-
-            }
-            GUI.Button(new Rect(20, 110, 200, 20), "Location X:" + x.ToString("0.0") + " Y:" + y.ToString("0.0") + " Z:" + z.ToString("0.0"));
-            GUI.Button(new Rect(20, 135, 200, 20), "Look Vector X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0"));
-            GUI.Button(new Rect(20, 160, 200, 20), "Arc Type: " + d.Alignment.ToString());
-            if (GUI.Button(new Rect(230, 160, 70, 20), "CHANGE"))
-                d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 6);
-            if (GUI.Button(new Rect(310, 160, 70, 20), "ALIGN"))
-                AlignAllDirectives();
-            GUI.Button(new Rect(20, 185, 200, 20), "Distance to next Directive: " + d.Distance.ToString("0.0"));
-            GUI.Button(new Rect(20, 210, 200, 20), "Set speed to: " + d.Speed.ToString());
-            GUI.Button(new Rect(20, 235, 200, 20), "Wait for: " + d.WaitTime.ToString("0.0") + "s");
-            GUI.Button(new Rect(20, 260, 200, 20), "Number of data points: " + d.Points.Count.ToString());
-        }
+        
 
 
 
@@ -204,6 +171,10 @@ public class OmniToolOfJustice : MonoBehaviour
 
             copter.SetActive(true);
         }
+        
+        
+        MouseControls();
+        KeyboardControls();
     }
 
     #region CopterMovement
@@ -334,9 +305,6 @@ public class OmniToolOfJustice : MonoBehaviour
                 selDirective = t;
                 mouseDragDirective = t;
             }
-            else
-                if (!guiRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
-                    selDirective = -1;
         }
         if (mouseDragDirective > -1)
         {
@@ -394,33 +362,101 @@ public class OmniToolOfJustice : MonoBehaviour
                 }
                 if (scroll < 0)
                     TopDownEditingCam.orthographicSize -= scroll * 200;
-
                 break;
             case CameraType.PerspectiveEditing:
-                SelectDirectiveAndDrag();
-                Vector3 terrainCenter = gameLevelTerrain.transform.position + new Vector3(gameLevelTerrain.terrainData.size.x, 0, gameLevelTerrain.terrainData.size.z) / 2;
-                if (Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 300)
-                    PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 200;
-                else if (Input.GetAxis("Mouse ScrollWheel") < 0)
-                    PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 200;
-                if (Input.GetMouseButton(2))
+                Debug.Log(selDirective.ToString() + " " + mouseDragDirective);
+                if (selDirective > -1)
                 {
-                    Vector3 campos = PerspectiveEditingCam.transform.position;
-                    Vector3 v = campos - terrainCenter;
-                    float x = v.x;
-                    float y = v.z;
-                    float theta = -dMouse.x * 0.01f;
-                    float xp = x * Mathf.Cos(theta) - y * Mathf.Sin(theta);
-                    float yp = x * Mathf.Sin(theta) + y * Mathf.Cos(theta);
-                    PerspectiveEditingCam.transform.position = new Vector3(terrainCenter.x + xp, Mathf.Clamp(campos.y + dMouse.y, terrainCenter.y + 50f, terrainCenter.y + 500f), terrainCenter.z + yp);
-                    PerspectiveEditingCam.transform.LookAt(terrainCenter);
+                    EditDirective(); 
                 }
+                SelectDirectiveAndDrag();
+               
+                PerspectiveCameraControls(dMouse);
                 break;
             case CameraType.Copter:
                 CopterCam.rect = new Rect(cameraX, cameraY, Screen.width * 0.5f, Screen.height);
                 break;
         }
         pMouse = Input.mousePosition;
+    }
+    void PerspectiveCameraControls(Vector3 dMouse)
+    {
+        Vector3 terrainCenter = gameLevelTerrain.transform.position + new Vector3(gameLevelTerrain.terrainData.size.x, 0, gameLevelTerrain.terrainData.size.z) / 2;
+        if (Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 300)
+            PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 200;
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0)
+            PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 200;
+        if (Input.GetMouseButton(2))
+        {
+            Vector3 campos = PerspectiveEditingCam.transform.position;
+            Vector3 v = campos - terrainCenter;
+            float x = v.x;
+            float y = v.z;
+            float theta = -dMouse.x * 0.01f;
+            float xp = x * Mathf.Cos(theta) - y * Mathf.Sin(theta);
+            float yp = x * Mathf.Sin(theta) + y * Mathf.Cos(theta);
+            PerspectiveEditingCam.transform.position = new Vector3(terrainCenter.x + xp, Mathf.Clamp(campos.y + dMouse.y, terrainCenter.y + 50f, terrainCenter.y + 500f), terrainCenter.z + yp);
+            PerspectiveEditingCam.transform.LookAt(terrainCenter);
+        }
+    }
+    void EditDirective()
+    {
+        Directive d = directives[selDirective];
+        Vector3 point = d.Position;
+        guiRect = new Rect(PerspectiveEditingCam.WorldToScreenPoint(point).x, Screen.height - PerspectiveEditingCam.WorldToScreenPoint(point).y, 200, 40);
+        float x = point.x;
+        float y = point.y;
+        float z = point.z;
+        GUI.Button(guiRect, "Pos X:" + x.ToString("0.0") + " Y:" + y.ToString("0.0") + " Z:" + z.ToString("0.0"));
+        if (mouseDragDirective == -1)
+        {
+            if (GUI.Button(new Rect(20, 110, 300, 20), "Pos X:" + x.ToString("0.0") + " Y:" + y.ToString("0.0") + " Z:" + z.ToString("0.0")))
+            {
+                mouseDragDirective = selDirective;
+            }
+            else if (GUI.Button(new Rect(20, 135, 300, 20), "Look X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0")))
+            {
+
+            }
+            else if (GUI.Button(new Rect(20, 170, 200, 20), "Arc Type: " + d.Alignment.ToString()))
+            {
+                d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 6);
+            }
+            else if (GUI.Button(new Rect(230, 160, 90, 20), "CHANGE"))
+            {
+                d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 6);
+            }
+            else if (GUI.Button(new Rect(230, 180, 90, 20), "ALIGN"))
+            {
+                AlignAllDirectives();
+            }
+            else if (GUI.Button(new Rect(20, 205, 250, 20), "Distance: " + d.Distance.ToString("0.0")))
+            {
+
+            }
+            else if (GUI.Button(new Rect(20, 230, 250, 20), "Set speed: " + d.Speed.ToString("0.0")))
+            {
+                if (Input.GetMouseButtonUp(0))
+                    d.Speed += 0.1f;
+                else if (Input.GetMouseButtonUp(1))
+                    d.Speed = Mathf.Max(0.0f, d.Speed - 0.1f);
+            }
+            else if (GUI.Button(new Rect(20, 255, 250, 20), "Wait for: " + d.WaitTime.ToString("0.0") + "s"))
+            {
+                if (Input.GetMouseButtonUp(0))
+                    d.WaitTime += 0.1f;
+                else if (Input.GetMouseButtonUp(1))
+                    d.WaitTime = Mathf.Max(0.0f, d.WaitTime - 0.1f);
+            }
+            else if (GUI.Button(new Rect(20, 280, 250, 20), "# data points: " + d.Points.Count.ToString()))
+            {
+
+            }
+            else if (GUI.Button(new Rect(20, 310, 150, 30), "CLOSE"))
+            {
+                selDirective = -1;
+            }
+        }
     }
     void CameraChecking()
     {
