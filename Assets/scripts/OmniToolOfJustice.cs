@@ -161,19 +161,32 @@ public class OmniToolOfJustice : MonoBehaviour
             Directive d = directives[selDirective];
             Vector3 point = d.Position;
 
-            guiRect = new Rect(PerspectiveEditingCam.WorldToScreenPoint(point).x, Screen.height - PerspectiveEditingCam.WorldToScreenPoint(point).y, 200, 100);
+            guiRect = new Rect(PerspectiveEditingCam.WorldToScreenPoint(point).x, Screen.height - PerspectiveEditingCam.WorldToScreenPoint(point).y, 400, 400);
             float x = point.x;
             float y = point.y;
             float z = point.z;
             if (GUI.Button(guiRect,
-                           "Location\nX: " + x.ToString() +
-                           "\nY:" + y.ToString() +
-                           "\nZ: " + z.ToString() +
-                           "\nLook Vector:" + d.LookVector.ToString() +
-                           "\nArc Type: " + d.Alignment.ToString(), customGUIStyle))
+                           "Location X:" + x.ToString("0.0") + " Y:" + y.ToString("0.0") + " Z:" + z.ToString("0.0") +
+                           "\nLook Vector X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0") +
+                           "\nArc Type: " + d.Alignment.ToString() +
+                           "\nDistance to next Directive: " + d.Distance.ToString("0.0") +
+                           "\nSet speed to: " + d.Speed.ToString() +
+                           "\nWait for: " + d.WaitTime.ToString("0.0") + "s" +
+                           "\nNumber of data points: " + d.Points.Count.ToString(), customGUIStyle))
             {
 
             }
+            GUI.Button(new Rect(20, 110, 200, 20), "Location X:" + x.ToString("0.0") + " Y:" + y.ToString("0.0") + " Z:" + z.ToString("0.0"));
+            GUI.Button(new Rect(20, 135, 200, 20), "Look Vector X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0"));
+            GUI.Button(new Rect(20, 160, 200, 20), "Arc Type: " + d.Alignment.ToString());
+            if (GUI.Button(new Rect(230, 160, 70, 20), "CHANGE"))
+                d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 6);
+            if (GUI.Button(new Rect(310, 160, 70, 20), "ALIGN"))
+                AlignAllDirectives();
+            GUI.Button(new Rect(20, 185, 200, 20), "Distance to next Directive: " + d.Distance.ToString("0.0"));
+            GUI.Button(new Rect(20, 210, 200, 20), "Set speed to: " + d.Speed.ToString());
+            GUI.Button(new Rect(20, 235, 200, 20), "Wait for: " + d.WaitTime.ToString("0.0") + "s");
+            GUI.Button(new Rect(20, 260, 200, 20), "Number of data points: " + d.Points.Count.ToString());
         }
 
 
@@ -453,6 +466,14 @@ public class OmniToolOfJustice : MonoBehaviour
                 CopterCam.enabled = true;
                 break;
         }
+    }
+    #endregion
+
+    #region Tools
+    void AlignAllDirectives()
+    {
+        for (int i = 0; i < directives.Count; i++)
+            directives[i].Align(Lines, directives, i);
     }
     #endregion
 }
