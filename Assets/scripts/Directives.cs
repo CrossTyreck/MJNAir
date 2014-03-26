@@ -88,6 +88,14 @@ public class Directive
         for (int i = 0; i < id; i++)
             startIndex += dirs[i].Points.Count - 1;
         lines.SetPosition(startIndex, Position);
+        FindDistanceToNextDirective();
+    }
+    public void FindDistanceToNextDirective()
+    {
+        float d = 0f;
+        for (int i = 1; i < Points.Count; i++)
+            d += Vector3.Distance(Points[i], Points[i - 1]);
+        Distance = d;
     }
     private void AlignToMe(LineRenderer lines, Directive me, int startIndex)
     {
@@ -131,7 +139,7 @@ public class Directive
             case ArcAlignment.Straight:
                 for (int i = 0; i < Points.Count; i++)
                 {
-                    float n = (float)(i) / (Points.Count - 1);
+                    float n = (float)(i) / (float)(Points.Count - 1);
                     Points[i] = Vector3.Lerp(Position, endPoint, n);
                     lines.SetPosition(startIndex + i, Points[i]);
                 }
@@ -141,7 +149,7 @@ public class Directive
                 b = new Bezier(startPoint, -dif, dif, endPoint);
                 for (int i = 0; i < Points.Count; i++)
                 {
-                    float n = (float)(i) / (Points.Count - 1);
+                    float n = (float)(i) / (float)(Points.Count - 1);
                     Vector3 newPoint = new Vector3(Points[i].x, b.GetPointAtTime(n).y, b.GetPointAtTime(n).z);
                     Points[i] = newPoint;
                     lines.SetPosition(startIndex + i, Points[i]);
@@ -152,7 +160,7 @@ public class Directive
                 b = new Bezier(startPoint, -dif, dif, endPoint);
                 for (int i = 0; i < Points.Count; i++)
                 {
-                    float n = (float)(i) / (Points.Count - 1);
+                    float n = (float)(i) / (float)(Points.Count - 1);
                     Vector3 newPoint = new Vector3(b.GetPointAtTime(n).x, Points[i].y, b.GetPointAtTime(n).z);
                     Points[i] = newPoint;
                     lines.SetPosition(startIndex + i, Points[i]);
@@ -163,7 +171,7 @@ public class Directive
                 b = new Bezier(startPoint, -dif, dif, endPoint);
                 for (int i = 0; i < Points.Count; i++)
                 {
-                    float n = (float)(i) / (Points.Count - 1);
+                    float n = (float)(i) / (float)(Points.Count - 1);
                     Vector3 newPoint = new Vector3(b.GetPointAtTime(n).x, Points[i].y, Points[i].z);
                     Points[i] = b.GetPointAtTime(n);
                     lines.SetPosition(startIndex + i, Points[i]);
@@ -174,7 +182,7 @@ public class Directive
                 b = new Bezier(startPoint, -dif, dif, endPoint);
                 for (int i = 0; i < Points.Count; i++)
                 {
-                    float n = (float)(i) / (Points.Count - 1);
+                    float n = (float)(i) / (float)(Points.Count - 1);
                     Vector3 newPoint = new Vector3(Points[i].x, b.GetPointAtTime(n).y, Points[i].z);
                     Points[i] = newPoint;
                     lines.SetPosition(startIndex + i, Points[i]);
@@ -185,7 +193,7 @@ public class Directive
                 b = new Bezier(startPoint, -dif, dif, endPoint);
                 for (int i = 0; i < Points.Count; i++)
                 {
-                    float n = (float)(i) / (Points.Count - 1);
+                    float n = (float)(i) / (float)(Points.Count - 1);
                     Vector3 newPoint = new Vector3(Points[i].x, Points[i].y, b.GetPointAtTime(n).z);
                     Points[i] = newPoint;
                     lines.SetPosition(startIndex + i, Points[i]);
@@ -194,6 +202,7 @@ public class Directive
             default:
                 break;
         }
+        FindDistanceToNextDirective();
     }
     void SetEndPoints(int nextid, Vector3 endPoint, int endIndex, int startIndex, int id, List<Directive> dirs, LineRenderer lines)
     {
@@ -210,7 +219,7 @@ public class Directive
     void InitVariables()
     {
         LookVector = new Vector3(0, 0, 0);
-        Speed = 0;
+        Speed = 1.0f;
         Distance = 0;
         WaitTime = 0.0f;
         Points = new List<Vector3>();
