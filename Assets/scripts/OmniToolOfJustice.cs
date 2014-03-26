@@ -30,7 +30,6 @@ public class OmniToolOfJustice : MonoBehaviour
     float cameraY = 0;
     CameraType camtype = CameraType.TopDownEditing;
     float speed;
-    int lineres = 10;
     public GameObject copter;
     Vector3 direction;
     Vector3 cross;
@@ -154,9 +153,6 @@ public class OmniToolOfJustice : MonoBehaviour
             moving = !moving;
         }
 
-        
-
-
 
         if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
         {
@@ -258,16 +254,19 @@ public class OmniToolOfJustice : MonoBehaviour
             {
                 Ray ray = cam.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit = new RaycastHit();
-                int x1 = (int)(ray.origin.x / lineres);
-                int y1 = (int)(ray.origin.z / lineres);
-                int x2 = (int)(directives[curDirective].Points[directives[curDirective].Points.Count - 1].x / lineres);
-                int y2 = (int)(directives[curDirective].Points[directives[curDirective].Points.Count - 1].z / lineres);
+                int x1 = (int)(ray.origin.x);
+                int y1 = (int)(ray.origin.z);
+                int x2 = (int)(directives[curDirective].Points[directives[curDirective].Points.Count - 1].x);
+                int y2 = (int)(directives[curDirective].Points[directives[curDirective].Points.Count - 1].z);
                 if (x1 != x2 || y1 != y2)
                 {
                     if (gameLevelObject.collider.Raycast(ray, out hit, cam.farClipPlane))
                     {
                         Vector3 p = new Vector3(hit.point.x, hit.point.y + 6, hit.point.z);
                         directives[curDirective].Points.Add(p);
+                        directives[curDirective].Distance += Vector3.Distance(
+                            directives[curDirective].Points[directives[curDirective].Points.Count - 2], 
+                            directives[curDirective].Points[directives[curDirective].Points.Count - 1]);
                         vertexCount++;
                         Lines.SetVertexCount(vertexCount);
                         Lines.SetPosition(vertexCount - 1, p);
@@ -276,8 +275,6 @@ public class OmniToolOfJustice : MonoBehaviour
             }
         }
     }
-
-
     int getIndexOnClick(Camera cam)
     {
         if (directives.Count > 0)
@@ -294,7 +291,6 @@ public class OmniToolOfJustice : MonoBehaviour
         }
         return -1;
     }
-
     void SelectDirectiveAndDrag()
     {
         if (Input.GetMouseButtonDown(0))
@@ -318,7 +314,7 @@ public class OmniToolOfJustice : MonoBehaviour
             if (Input.GetKey(KeyCode.LeftShift))
                 directives[mouseDragDirective].Set(r.GetPoint(t), Lines, directives, mouseDragDirective);
             else
-                directives[mouseDragDirective].Set(directives[mouseDragDirective].Position + new Vector3(0, dif.y, 0), Lines, directives, mouseDragDirective);
+                directives[mouseDragDirective].Set(directives[mouseDragDirective].Position + new Vector3(0, dif.y * 0.03f, 0), Lines, directives, mouseDragDirective);
 
             if (Input.GetMouseButtonUp(0))
             {
@@ -327,7 +323,6 @@ public class OmniToolOfJustice : MonoBehaviour
             }
         }
     }
-
     #endregion
 
     #region User Controls
@@ -379,8 +374,8 @@ public class OmniToolOfJustice : MonoBehaviour
     }
     void PerspectiveCameraControls(Vector3 dMouse)
     {
-        Vector3 terrainCenter = gameLevelObject.transform.position + new Vector3(gameLevelObject.transform.localScale.x, 0, gameLevelObject.transform.localScale.z) / 2;
-        if (Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 300)
+        Vector3 terrainCenter = gameLevelObject.transform.position + new Vector3(gameLevelObject.transform.localScale.x, 6, gameLevelObject.transform.localScale.z) / 2;
+        if (Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 5)
             PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel");
         else if (Input.GetAxis("Mouse ScrollWheel") < 0)
             PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel");
@@ -393,7 +388,7 @@ public class OmniToolOfJustice : MonoBehaviour
             float theta = -dMouse.x * 0.003f;
             float xp = x * Mathf.Cos(theta) - y * Mathf.Sin(theta);
             float yp = x * Mathf.Sin(theta) + y * Mathf.Cos(theta);
-            PerspectiveEditingCam.transform.position = new Vector3(terrainCenter.x + xp, Mathf.Clamp(campos.y + dMouse.y * 0.01f, terrainCenter.y + 1f, terrainCenter.y + 15f), terrainCenter.z + yp);
+            PerspectiveEditingCam.transform.position = new Vector3(terrainCenter.x + xp, Mathf.Clamp(campos.y + dMouse.y * 0.01f, terrainCenter.y - 2f, terrainCenter.y + 15f), terrainCenter.z + yp);
             PerspectiveEditingCam.transform.LookAt(terrainCenter);
         }
     }
@@ -428,7 +423,7 @@ public class OmniToolOfJustice : MonoBehaviour
             {
                 AlignAllDirectives();
             }
-            else if (GUI.Button(new Rect(20, 205, 250, 20), "Distance: " + d.Distance.ToString("0.0")))
+            else if (GUI.Button(new Rect(20, 205, 250, 20), "Dist to next: " + d.Distance.ToString("0.0")))
             {
 
             }
