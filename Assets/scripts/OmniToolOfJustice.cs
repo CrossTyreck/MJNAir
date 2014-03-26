@@ -266,7 +266,7 @@ public class OmniToolOfJustice : MonoBehaviour
                 {
                     if (gameLevelObject.collider.Raycast(ray, out hit, cam.farClipPlane))
                     {
-                        Vector3 p = new Vector3(hit.point.x, hit.point.y + 100, hit.point.z);
+                        Vector3 p = new Vector3(hit.point.x, hit.point.y + 6, hit.point.z);
                         directives[curDirective].Points.Add(p);
                         vertexCount++;
                         Lines.SetVertexCount(vertexCount);
@@ -353,15 +353,15 @@ public class OmniToolOfJustice : MonoBehaviour
                 TopDownEditMode(TopDownEditingCam);
                 if (Input.GetMouseButton(2))
                     TopDownEditingCam.transform.position -= (new Vector3(dMouse.x, 0, dMouse.y) * TopDownEditingCam.orthographicSize) * 0.003f;
-                TopDownEditingCam.orthographicSize -= Input.GetAxis("Mouse ScrollWheel") * 200;
+                TopDownEditingCam.orthographicSize -= Input.GetAxis("Mouse ScrollWheel") * 10;
                 float scroll = Input.GetAxis("Mouse ScrollWheel");
                 if (scroll > 0)
                 {
-                    if (TopDownEditingCam.orthographicSize > 200)
-                        TopDownEditingCam.orthographicSize -= scroll * 200;
+                    if (TopDownEditingCam.orthographicSize > 5)
+                        TopDownEditingCam.orthographicSize -= scroll;
                 }
                 if (scroll < 0)
-                    TopDownEditingCam.orthographicSize -= scroll * 200;
+                    TopDownEditingCam.orthographicSize -= scroll;
                 break;
             case CameraType.PerspectiveEditing:
                 Debug.Log(selDirective.ToString() + " " + mouseDragDirective);
@@ -383,19 +383,19 @@ public class OmniToolOfJustice : MonoBehaviour
     {
         Vector3 terrainCenter = gameLevelObject.transform.position + new Vector3(gameLevelObject.transform.localScale.x, 0, gameLevelObject.transform.localScale.z) / 2;
         if (Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 300)
-            PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 200;
+            PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 10;
         else if (Input.GetAxis("Mouse ScrollWheel") < 0)
-            PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 200;
+            PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel") * 10;
         if (Input.GetMouseButton(2))
         {
             Vector3 campos = PerspectiveEditingCam.transform.position;
             Vector3 v = campos - terrainCenter;
             float x = v.x;
             float y = v.z;
-            float theta = -dMouse.x * 0.01f;
+            float theta = -dMouse.x * 0.003f;
             float xp = x * Mathf.Cos(theta) - y * Mathf.Sin(theta);
             float yp = x * Mathf.Sin(theta) + y * Mathf.Cos(theta);
-            PerspectiveEditingCam.transform.position = new Vector3(terrainCenter.x + xp, Mathf.Clamp(campos.y + dMouse.y, terrainCenter.y + 50f, terrainCenter.y + 500f), terrainCenter.z + yp);
+            PerspectiveEditingCam.transform.position = new Vector3(terrainCenter.x + xp, Mathf.Clamp(campos.y + dMouse.y, terrainCenter.y + 1f, terrainCenter.y + 15f), terrainCenter.z + yp);
             PerspectiveEditingCam.transform.LookAt(terrainCenter);
         }
     }
