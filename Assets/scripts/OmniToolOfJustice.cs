@@ -45,13 +45,13 @@ public class OmniToolOfJustice : MonoBehaviour
     public GUIStyle customGUIStyle;
     public bool endingCondition = false;
     public Transform gameBoard;
+    public ParticleSystem arrowPS;
     #endregion
 
 
     //
     void Start()
     {
-
         gameGrid = new ScoreBoard(gameBoard);
         moving = false;
         drawingPath = true;
@@ -68,6 +68,7 @@ public class OmniToolOfJustice : MonoBehaviour
         vertexCount++;
         Lines.SetVertexCount(vertexCount);
         Lines.SetPosition(vertexCount - 1, copter.transform.position);
+        arrowPS.Play();
     }
 
     void Update()
@@ -298,8 +299,11 @@ public class OmniToolOfJustice : MonoBehaviour
             if (selDirective == -1)
             {
                 int t = getIndexOnClick(PerspectiveEditingCam);
+                
                 selDirective = t;
                 mouseDragDirective = t;
+                if (t > -1)
+                    arrowPS.enableEmission = true;
             }
         }
         if (mouseDragDirective > -1)
@@ -318,7 +322,7 @@ public class OmniToolOfJustice : MonoBehaviour
 
             if (Input.GetMouseButtonUp(0))
             {
-                directives[mouseDragDirective].Pyramid.renderer.material.color = new Color(0.4f, 1f, 0.4f);
+                directives[mouseDragDirective].Pyramid.renderer.material.color = new Color(0.3f, 1.0f, 0.3f);
                 mouseDragDirective = -1;
             }
         }
@@ -357,11 +361,8 @@ public class OmniToolOfJustice : MonoBehaviour
                     TopDownEditingCam.orthographicSize -= scroll;
                 break;
             case CameraType.PerspectiveEditing:
-                Debug.Log(selDirective.ToString() + " " + mouseDragDirective);
                 if (selDirective > -1)
-                {
                     EditDirective(); 
-                }
                 SelectDirectiveAndDrag();
                
                 PerspectiveCameraControls(dMouse);
@@ -396,59 +397,72 @@ public class OmniToolOfJustice : MonoBehaviour
     {
         Directive d = directives[selDirective];
         Vector3 point = d.Position;
-        guiRect = new Rect(PerspectiveEditingCam.WorldToScreenPoint(point).x, Screen.height - PerspectiveEditingCam.WorldToScreenPoint(point).y, 300, 40);
+        arrowPS.transform.position = d.Position;
+        d.Pyramid.renderer.material.color = Color.white;
+        guiRect = new Rect(PerspectiveEditingCam.WorldToScreenPoint(point).x, Screen.height - PerspectiveEditingCam.WorldToScreenPoint(point).y, 320, 270);
         float x = point.x;
         float y = point.y;
         float z = point.z;
-        GUI.Button(guiRect, "Pos X:" + x.ToString("0.0") + " Y:" + y.ToString("0.0") + " Z:" + z.ToString("0.0"));
-        if (mouseDragDirective == -1)
+        GUI.Window(0, guiRect, DirectiveData, "Directive Data");
+        if (Input.GetMouseButtonDown(0))
+            if (!guiRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
+            {
+                d.Pyramid.renderer.material.color = new Color(0.3f, 1.0f, 0.3f);
+                selDirective = -1;
+
+                arrowPS.enableEmission = false;
+            }
+    }
+    void DirectiveData(int id)
+    {
+        if (selDirective > -1)
         {
-            if (GUI.Button(new Rect(20, 110, 310, 20), "Pos X:" + x.ToString("0.0") + " Y:" + y.ToString("0.0") + " Z:" + z.ToString("0.0")))
+            Directive d = directives[selDirective];
+            float x = d.Position.x;
+            float y = d.Position.y;
+            float z = d.Position.z;
+            if (GUI.Button(new Rect(5, 25, 310, 20), "Pos X:" + x.ToString("0.0") + " Y:" + y.ToString("0.0") + " Z:" + z.ToString("0.0")))
             {
                 mouseDragDirective = selDirective;
             }
-            else if (GUI.Button(new Rect(20, 135, 310, 20), "Look X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0")))
+            else if (GUI.Button(new Rect(5, 50, 310, 20), "Look X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0")))
             {
 
             }
-            else if (GUI.Button(new Rect(20, 170, 200, 20), "Arc Type: " + d.Alignment.ToString()))
+            else if (GUI.Button(new Rect(5, 85, 200, 20), "Arc Type: " + d.Alignment.ToString()))
             {
                 d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
             }
-            else if (GUI.Button(new Rect(230, 160, 90, 20), "CHANGE"))
+            else if (GUI.Button(new Rect(225, 75, 90, 20), "CHANGE"))
             {
                 d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
             }
-            else if (GUI.Button(new Rect(230, 180, 90, 20), "ALIGN"))
+            else if (GUI.Button(new Rect(225, 95, 90, 20), "ALIGN"))
             {
                 AlignAllDirectives();
             }
-            else if (GUI.Button(new Rect(20, 205, 250, 20), "Dist to next: " + d.Distance.ToString("0.0")))
+            else if (GUI.Button(new Rect(30, 120, 250, 20), "Dist to next: " + d.Distance.ToString("0.0")))
             {
 
             }
-            else if (GUI.Button(new Rect(20, 230, 250, 20), "Set speed: " + d.Speed.ToString("0.0")))
+            else if (GUI.Button(new Rect(30, 145, 250, 20), "Set speed: " + d.Speed.ToString("0.0")))
             {
                 if (Input.GetMouseButtonUp(0))
                     d.Speed += 0.1f;
                 else if (Input.GetMouseButtonUp(1))
                     d.Speed = Mathf.Max(0.0f, d.Speed - 0.1f);
             }
-            else if (GUI.Button(new Rect(20, 255, 250, 20), "Wait for: " + d.WaitTime.ToString("0.0") + "s"))
+            if (GUI.Button(new Rect(30, 170, 250, 20), "Wait for: " + d.WaitTime.ToString("0.0") + "s"))
             {
                 if (Input.GetMouseButtonUp(0))
                     d.WaitTime += 0.1f;
                 else if (Input.GetMouseButtonUp(1))
                     d.WaitTime = Mathf.Max(0.0f, d.WaitTime - 0.1f);
             }
-            else if (GUI.Button(new Rect(20, 280, 250, 20), "# data points: " + d.Points.Count.ToString()))
-            {
-
-            }
-            else if (GUI.Button(new Rect(20, 310, 150, 30), "CLOSE"))
-            {
+            if (GUI.Button(new Rect(30, 195, 250, 20), "# data points: " + d.Points.Count.ToString()))
+                ;
+            if (GUI.Button(new Rect(90, 235, 150, 30), "CLOSE"))
                 selDirective = -1;
-            }
         }
     }
     void CameraChecking()

@@ -62,3 +62,14 @@ D:\Projects Unity\MJNAir.git\trunk\Temp\bin\Debug\ICSharpCode.NRefactory.dll
 D:\Projects Unity\MJNAir.git\trunk\obj\Debug\Assembly-CSharp-vs.csprojResolveAssemblyReference.cache
 D:\Projects Unity\MJNAir.git\trunk\obj\Debug\Assembly-CSharp.dll
 D:\Projects Unity\MJNAir.git\trunk\obj\Debug\Assembly-CSharp.pdb
+C:\Users\jpryan3\Desktop\MJNAir\trunk\Temp\bin\Debug\Assembly-CSharp.dll
+C:\Users\jpryan3\Desktop\MJNAir\trunk\Temp\bin\Debug\Assembly-CSharp.pdb
+C:\Users\jpryan3\Desktop\MJNAir\trunk\Temp\bin\Debug\UnityEditor.dll
+C:\Users\jpryan3\Desktop\MJNAir\trunk\Temp\bin\Debug\UnityEngine.dll
+C:\Users\jpryan3\Desktop\MJNAir\trunk\Temp\bin\Debug\Mono.Cecil.dll
+C:\Users\jpryan3\Desktop\MJNAir\trunk\Temp\bin\Debug\nunit.framework.dll
+C:\Users\jpryan3\Desktop\MJNAir\trunk\Temp\bin\Debug\Unity.DataContract.dll
+C:\Users\jpryan3\Desktop\MJNAir\trunk\Temp\bin\Debug\ICSharpCode.NRefactory.dll
+C:\Users\jpryan3\Desktop\MJNAir\trunk\obj\Debug\Assembly-CSharp-vs.csprojResolveAssemblyReference.cache
+C:\Users\jpryan3\Desktop\MJNAir\trunk\obj\Debug\Assembly-CSharp.dll
+C:\Users\jpryan3\Desktop\MJNAir\trunk\obj\Debug\Assembly-CSharp.pdb
