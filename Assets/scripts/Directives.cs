@@ -225,6 +225,12 @@ public class Directive
         Points = new List<Vector3>();
         Alignment = ArcAlignment.None;
     }
+
+	public void Highlight(List<ParticleSystem> particles) {
+		for(int i = 1; i < Points.Count; i++) {
+			particles[i].transform.position = Points[i];
+		}
+	}
 }
 public class Bezier
 {

@@ -20,12 +20,15 @@ public class OmniToolOfJustice : MonoBehaviour
     public Camera CopterCam;
     public GameObject Arrow;
     public LineRenderer Lines;
+	public ParticleSystem linePS;
+	public ParticleSystem arrowPS;
     int mouseDragDirective = -1;
     int selDirective = -1;
     int curDirective = 0;
     int vertexCount = 0;
     Vector3 pMouse = Vector3.zero;
     List<Directive> directives = new List<Directive>();
+	List<ParticleSystem> lineparticles = new List<ParticleSystem>();
     float cameraX = 0;
     float cameraY = 0;
     CameraType camtype = CameraType.TopDownEditing;
@@ -45,7 +48,7 @@ public class OmniToolOfJustice : MonoBehaviour
     public GUIStyle customGUIStyle;
     public bool endingCondition = false;
     public Transform gameBoard;
-    public ParticleSystem arrowPS;
+    
     #endregion
 
 
@@ -63,12 +66,12 @@ public class OmniToolOfJustice : MonoBehaviour
         customGUIStyle = new GUIStyle();
         customGUIStyle.fontSize = 14;
         copter.SetActive(false);
-        copter.transform.position = new Vector3(500, 100, 500);
         directives.Add(new Directive(copter.transform.position, Instantiate(Arrow) as GameObject));
         vertexCount++;
         Lines.SetVertexCount(vertexCount);
         Lines.SetPosition(vertexCount - 1, copter.transform.position);
         arrowPS.Play();
+		linePS.Play ();
     }
 
     void Update()
@@ -303,7 +306,13 @@ public class OmniToolOfJustice : MonoBehaviour
                 selDirective = t;
                 mouseDragDirective = t;
                 if (t > -1)
+				{
+					linePS.enableEmission = true;
                     arrowPS.enableEmission = true;
+					for(int i = 0; i < directives[t].Points.Count; i++) {
+						lineparticles.Add (Instantiate(linePS) as ParticleSystem);
+					}
+				}
             }
         }
         if (mouseDragDirective > -1)
@@ -400,28 +409,28 @@ public class OmniToolOfJustice : MonoBehaviour
         arrowPS.transform.position = d.Position;
         d.Pyramid.renderer.material.color = Color.white;
         guiRect = new Rect(PerspectiveEditingCam.WorldToScreenPoint(point).x, Screen.height - PerspectiveEditingCam.WorldToScreenPoint(point).y, 320, 270);
-        float x = point.x;
-        float y = point.y;
-        float z = point.z;
         GUI.Window(0, guiRect, DirectiveData, "Directive Data");
         if (Input.GetMouseButtonDown(0))
             if (!guiRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
             {
                 d.Pyramid.renderer.material.color = new Color(0.3f, 1.0f, 0.3f);
                 selDirective = -1;
-
-                arrowPS.enableEmission = false;
+				arrowPS.enableEmission = false;
+				linePS.enableEmission = false;
+				for(int i = 0; i < lineparticles.Count; i++)
+					Destroy(lineparticles[i]);
+				lineparticles.Clear();
             }
     }
+
     void DirectiveData(int id)
     {
         if (selDirective > -1)
         {
             Directive d = directives[selDirective];
-            float x = d.Position.x;
-            float y = d.Position.y;
-            float z = d.Position.z;
-            if (GUI.Button(new Rect(5, 25, 310, 20), "Pos X:" + x.ToString("0.0") + " Y:" + y.ToString("0.0") + " Z:" + z.ToString("0.0")))
+			d.Highlight(lineparticles);
+
+			if (GUI.Button(new Rect(5, 25, 310, 20), "Pos X:" + d.Position.x.ToString("0.0") + " Y:" + d.Position.y.ToString("0.0") + " Z:" + d.Position.z.ToString("0.0")))
             {
                 mouseDragDirective = selDirective;
             }
@@ -462,7 +471,15 @@ public class OmniToolOfJustice : MonoBehaviour
             if (GUI.Button(new Rect(30, 195, 250, 20), "# data points: " + d.Points.Count.ToString()))
                 ;
             if (GUI.Button(new Rect(90, 235, 150, 30), "CLOSE"))
-                selDirective = -1;
+			{
+				d.Pyramid.renderer.material.color = new Color(0.3f, 1.0f, 0.3f);
+				selDirective = -1;
+				arrowPS.enableEmission = false;
+				linePS.enableEmission = false;
+				for(int i = 0; i < lineparticles.Count; i++)
+					Destroy(lineparticles[i]);
+				lineparticles.Clear();
+			}
         }
     }
     void CameraChecking()
