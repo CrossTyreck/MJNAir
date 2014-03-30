@@ -307,10 +307,10 @@ public class OmniToolOfJustice : MonoBehaviour
                 mouseDragDirective = t;
                 if (t > -1)
 				{
-					linePS.enableEmission = true;
                     arrowPS.enableEmission = true;
-					for(int i = 0; i < directives[t].Points.Count; i++) {
+					for(int i = 1; i < directives[t].Points.Count - 1; i++) {
 						lineparticles.Add (Instantiate(linePS) as ParticleSystem);
+						lineparticles[lineparticles.Count - 1].enableEmission = true;
 					}
 				}
             }
@@ -416,7 +416,6 @@ public class OmniToolOfJustice : MonoBehaviour
                 d.Pyramid.renderer.material.color = new Color(0.3f, 1.0f, 0.3f);
                 selDirective = -1;
 				arrowPS.enableEmission = false;
-				linePS.enableEmission = false;
 				for(int i = 0; i < lineparticles.Count; i++)
 					Destroy(lineparticles[i]);
 				lineparticles.Clear();

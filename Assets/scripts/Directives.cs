@@ -227,9 +227,8 @@ public class Directive
     }
 
 	public void Highlight(List<ParticleSystem> particles) {
-		for(int i = 1; i < Points.Count; i++) {
-			particles[i].transform.position = Points[i];
-		}
+		for(int i = 1; i < Points.Count - 1; i++)
+				particles[i - 1].transform.position = Points[i];
 	}
 }
 public class Bezier
