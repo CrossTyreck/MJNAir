@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class OmniToolOfJustice : MonoBehaviour
+public class Main : MonoBehaviour
 {
     #region Variable Definitions
     enum CameraType
@@ -14,7 +14,7 @@ public class OmniToolOfJustice : MonoBehaviour
     }
     ScoringSystem score;
     ScoreBoard gameGrid;
-    public GameObject gameLevelObject;
+    public GameObject gameGroundLevel;
     public Camera PerspectiveEditingCam;
     public Camera TopDownEditingCam;
     public Camera CopterCam;
@@ -264,7 +264,7 @@ public class OmniToolOfJustice : MonoBehaviour
                 int y2 = (int)(directives[curDirective].Points[directives[curDirective].Points.Count - 1].z);
                 if (x1 != x2 || y1 != y2)
                 {
-                    if (gameLevelObject.collider.Raycast(ray, out hit, cam.farClipPlane))
+                    if (gameGroundLevel.collider.Raycast(ray, out hit, cam.farClipPlane))
                     {
                         Vector3 p = new Vector3(hit.point.x, hit.point.y + 6, hit.point.z);
                         directives[curDirective].Points.Add(p);
@@ -384,7 +384,7 @@ public class OmniToolOfJustice : MonoBehaviour
     }
     void PerspectiveCameraControls(Vector3 dMouse)
     {
-        Vector3 terrainCenter = gameLevelObject.transform.position + new Vector3(gameLevelObject.transform.localScale.x, 6, gameLevelObject.transform.localScale.z) / 2;
+        Vector3 terrainCenter = gameGroundLevel.transform.position + new Vector3(gameGroundLevel.transform.localScale.x, 6, gameGroundLevel.transform.localScale.z) / 2;
         if (Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 5)
             PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel");
         else if (Input.GetAxis("Mouse ScrollWheel") < 0)
