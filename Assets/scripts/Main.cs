@@ -12,6 +12,7 @@ public class Main : MonoBehaviour
         Copter = 2,
         DualCam = 3
     }
+
     ScoringSystem score;
     ScoreBoard gameGrid;
     public GameObject gameGroundLevel;
@@ -48,6 +49,7 @@ public class Main : MonoBehaviour
     public GUIStyle customGUIStyle;
     public bool endingCondition = false;
     public Transform gameBoard;
+    public GameObject goPlanePosition;
     
     #endregion
 
@@ -55,7 +57,7 @@ public class Main : MonoBehaviour
     //
     void Start()
     {
-        gameGrid = new ScoreBoard(gameBoard);
+        gameGrid = new ScoreBoard(gameGroundLevel.transform);
         moving = false;
         drawingPath = true;
         startButton.enabled = false;
@@ -93,6 +95,7 @@ public class Main : MonoBehaviour
         {
             SetCopterDirection();
             MovingAlong();
+            goPlanePosition.transform.position = gameGrid.CopterLocation(copter);
 
         }
         else
@@ -121,8 +124,15 @@ public class Main : MonoBehaviour
     void OnGUI()
     {
         GUI.skin = UISkin;
-        //GUI.Label(new Rect(Screen.width * 0.5f, 20, 250, 50), "Score: " + score.CurrentScore.ToString());
-        GUI.Box(new Rect(10, 775, 250, 25), "Copter Position: " + copter.transform.position.ToString());
+        GUI.Label(new Rect(Screen.width * 0.5f, Screen.height * 0.2f, 250, 50), "Score: " + gameGrid.GameBoard.Length);
+        GUI.Label(new Rect(Screen.width * 0.5f, Screen.height * 0.3f, 250, 100), "CurrSquare: " + goPlanePosition.transform.position.ToString());
+        GUI.Box(new Rect(Screen.width * 0.01f, Screen.height * 0.1f, 250, 500), GUIContent.none);
+      
+        for (int i = 0; i < gameGrid.GameBoard.Length-1; i++ )
+        {
+            for (int j = 0; j < gameGrid.GameBoard.Length - 1; j++) { }
+               // GUI.Label(new Rect(Screen.width * 0.01f, Screen.height * 0.1f + (j * 60), 250, 200), "Squares: " + gameGrid.GameBoard[i, j].Position);
+        }
         GUI.Box(new Rect(10, 800, 250, 25), Vector3.Distance(target, copter.transform.position).ToString());
         GUI.Box(new Rect(10, 825, 250, 25), "Position counter: " + pathPosCount);
         GUI.Box(new Rect(10, 850, 250, 25), "Position counter: " + pathPosCount);
@@ -467,8 +477,8 @@ public class Main : MonoBehaviour
                 else if (Input.GetMouseButtonUp(1))
                     d.WaitTime = Mathf.Max(0.0f, d.WaitTime - 0.1f);
             }
-            if (GUI.Button(new Rect(30, 195, 250, 20), "# data points: " + d.Points.Count.ToString()))
-                ;
+            if (GUI.Button(new Rect(30, 195, 250, 20), "# data points: " + d.Points.Count.ToString())) 
+                
             if (GUI.Button(new Rect(90, 235, 150, 30), "CLOSE"))
 			{
 				d.Pyramid.renderer.material.color = new Color(0.3f, 1.0f, 0.3f);

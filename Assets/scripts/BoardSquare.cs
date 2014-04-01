@@ -60,10 +60,17 @@ public class BoardSquare
 
     }
 
+    public BoardSquare()
+    {
+        // TODO: Complete member initialization
+    }
+
     //Ridiculous but I am rushing this code crunch session 
     public void SetTraversed()
     {
         Traversed = true;
     }
+
+
 
 }

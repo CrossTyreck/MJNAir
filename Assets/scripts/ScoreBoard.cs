@@ -16,7 +16,7 @@ public class ScoreBoard
     {
         int x = (int)(transform.localScale.x * 10);
         int z = (int)(transform.localScale.z * 10);
-        Vector2 offset = new Vector2(transform.position.x - x* 0.5f, transform.position.z - z* 0.5f);
+        Vector2 offset = new Vector2(transform.position.x - x * 0.5f, transform.position.z - z * 0.5f);
         GameBoard = new BoardSquare[x, z];
 
         for (int i = 0; i < x; i++)
@@ -61,5 +61,24 @@ public class ScoreBoard
             }
         }
         return points;
+    }
+
+    /// <summary>
+    /// Check which square the quad copter is closest to. 
+    /// </summary>
+    /// <param name="copter"></param>
+    /// <returns></returns>
+    public Vector3 CopterLocation(GameObject copter)
+    {
+        float smallest = int.MaxValue;
+        BoardSquare bsReturn = new BoardSquare();
+
+        foreach (BoardSquare square in this.GameBoard)
+        {
+            float value = Vector2.Distance((Vector2)copter.transform.position, square.Position);
+            bsReturn = smallest < value ? square : bsReturn;
+        }
+        
+        return (Vector3)bsReturn.Position;
     }
 }
