@@ -66,21 +66,22 @@ public class Directive
     {
         if (Highlight)
         {
-            index = (index + 1) % Points.Count;
-            PS.enableEmission = (index != 0);
-            PS.transform.position = Points[index];
+            //index = (index + 1) % Points.Count;
+            //PS.enableEmission = (index != 0);
+            //PS.transform.position = Points[index];
 
-            /*
+            
             Vector3 direction = Points[index] - PS.transform.position;
-            if (direction.magnitude > 0.1f)
+            float d = direction.magnitude;
+            if (d > 0.1f)
             {
                 PS.enableEmission = (index != 0);
-                PS.transform.position += direction.normalized * 5.0f;
+                PS.transform.position += direction.normalized * Time.deltaTime * 100;
             }
             else
             {
                 index = (index + 1) % Points.Count;
-            }//*/
+            }
         }
     }
     int index;
