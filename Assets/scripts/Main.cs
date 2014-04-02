@@ -81,7 +81,7 @@ public class Main : MonoBehaviour
     void Update()
     {
         foreach(Directive d in directives)
-            d.Update(arrowPS, speed);
+            d.Update(arrowPS);
 
         if (Input.GetMouseButton(0) && !moving)
         {
@@ -397,7 +397,6 @@ public class Main : MonoBehaviour
     {
         Directive d = directives[selDirective];
         Vector3 point = d.Position;
-        arrowPS.transform.position = d.Position;
         d.Pyramid.renderer.material.color = Color.white;
         guiRect = new Rect(PerspectiveEditingCam.WorldToScreenPoint(point).x, Screen.height - PerspectiveEditingCam.WorldToScreenPoint(point).y, 320, 220);
         GUI.Window(0, guiRect, DirectiveData, "Directive Data");

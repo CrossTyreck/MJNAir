@@ -62,7 +62,7 @@ public class Directive
     }
 
     // Update is called once per frame - NOT TRUE
-    public void Update(ParticleSystem PS, float speed)
+    public void Update(ParticleSystem PS)
     {
         if (Highlight) {
 						//index = (index + 1) % Points.Count;
@@ -73,10 +73,9 @@ public class Directive
 						Vector3 direction = Points [index] - PS.transform.position;
 						
 						PS.enableEmission = (index != 0);
-						Vector3 next = direction.normalized * Time.deltaTime * 100f;
+						Vector3 next = direction.normalized * Time.deltaTime * 10f * Speed;
 						PS.transform.position += next;
-			if (direction.magnitude < 50f) {
-								Debug.Log (index);
+			if (direction.magnitude < 0.5f) {
 								index = (index + 1) % Points.Count;
 						}
 				} else {
