@@ -21,26 +21,17 @@ public class Main : MonoBehaviour
     public Camera CopterCam;
     public GameObject Arrow;
     public LineRenderer Lines;
-<<<<<<< .mine
 	public ParticleSystem arrowPS;
-=======
-    public ParticleSystem linePS;
-    public ParticleSystem arrowPS;
     public Texture cameraUp;
     public Texture topDownButtonsBG;
     public Texture goButton;
     public Texture stopButton;
->>>>>>> .r44
     int mouseDragDirective = -1;
     int selDirective = -1;
     int curDirective = 0;
     int vertexCount = 0;
     Vector3 pMouse = Vector3.zero;
     List<Directive> directives = new List<Directive>();
-<<<<<<< .mine
-=======
-    List<ParticleSystem> lineparticles = new List<ParticleSystem>();
->>>>>>> .r44
     float cameraX = 0;
     float cameraY = 0;
     CameraType camtype = CameraType.TopDownEditing;
@@ -313,17 +304,8 @@ public class Main : MonoBehaviour
                 if (t > -1)
                 {
                     arrowPS.enableEmission = true;
-<<<<<<< .mine
                     directives[t].Highlight = true;
 				}
-=======
-                    for (int i = 1; i < directives[t].Points.Count - 1; i++)
-                    {
-                        lineparticles.Add(Instantiate(linePS) as ParticleSystem);
-                        lineparticles[lineparticles.Count - 1].enableEmission = true;
-                    }
-                }
->>>>>>> .r44
             }
         }
         if (mouseDragDirective > -1)
@@ -426,15 +408,8 @@ public class Main : MonoBehaviour
             {
                 d.Pyramid.renderer.material.color = new Color(0.3f, 1.0f, 0.3f);
                 selDirective = -1;
-<<<<<<< .mine
 				arrowPS.enableEmission = false;
                 d.Highlight = false;
-=======
-                arrowPS.enableEmission = false;
-                for (int i = 0; i < lineparticles.Count; i++)
-                    Destroy(lineparticles[i]);
-                lineparticles.Clear();
->>>>>>> .r44
             }
     }
 
@@ -443,10 +418,6 @@ public class Main : MonoBehaviour
         if (selDirective > -1)
         {
             Directive d = directives[selDirective];
-<<<<<<< .mine
-=======
-            d.Highlight(lineparticles);
->>>>>>> .r44
 
             if (GUI.Button(new Rect(5, 25, 310, 20), "Pos X:" + d.Position.x.ToString("0.0") + " Y:" + d.Position.y.ToString("0.0") + " Z:" + d.Position.z.ToString("0.0")))
             {
@@ -486,24 +457,9 @@ public class Main : MonoBehaviour
                 else if (Input.GetMouseButtonUp(1))
                     d.WaitTime = Mathf.Max(0.0f, d.WaitTime - 0.1f);
             }
-<<<<<<< .mine
             if (GUI.Button(new Rect(30, 195, 250, 20), "# data points: " + d.Points.Count.ToString()))
             {
             }
-=======
-            if (GUI.Button(new Rect(30, 195, 250, 20), "# data points: " + d.Points.Count.ToString()))
-
-                if (GUI.Button(new Rect(90, 235, 150, 30), "CLOSE"))
-                {
-                    d.Pyramid.renderer.material.color = new Color(0.3f, 1.0f, 0.3f);
-                    selDirective = -1;
-                    arrowPS.enableEmission = false;
-                    linePS.enableEmission = false;
-                    for (int i = 0; i < lineparticles.Count; i++)
-                        Destroy(lineparticles[i]);
-                    lineparticles.Clear();
-                }
->>>>>>> .r44
         }
     }
     void CameraChecking()
