@@ -21,15 +21,19 @@ public class Main : MonoBehaviour
     public Camera CopterCam;
     public GameObject Arrow;
     public LineRenderer Lines;
-	public ParticleSystem linePS;
-	public ParticleSystem arrowPS;
+    public ParticleSystem linePS;
+    public ParticleSystem arrowPS;
+    public Texture cameraUp;
+    public Texture topDownButtonsBG;
+    public Texture goButton;
+    public Texture stopButton;
     int mouseDragDirective = -1;
     int selDirective = -1;
     int curDirective = 0;
     int vertexCount = 0;
     Vector3 pMouse = Vector3.zero;
     List<Directive> directives = new List<Directive>();
-	List<ParticleSystem> lineparticles = new List<ParticleSystem>();
+    List<ParticleSystem> lineparticles = new List<ParticleSystem>();
     float cameraX = 0;
     float cameraY = 0;
     CameraType camtype = CameraType.TopDownEditing;
@@ -50,7 +54,7 @@ public class Main : MonoBehaviour
     public bool endingCondition = false;
     public Transform gameBoard;
     public GameObject goPlanePosition;
-    
+
     #endregion
 
 
@@ -61,6 +65,7 @@ public class Main : MonoBehaviour
         moving = false;
         drawingPath = true;
         startButton.enabled = false;
+        startButton.transform.position = new Vector3(0.5f, 0.5f, 1);
         PerspectiveEditingCam.enabled = false;
         speed = 0;
         score = new ScoringSystem();
@@ -72,8 +77,8 @@ public class Main : MonoBehaviour
         vertexCount++;
         Lines.SetVertexCount(vertexCount);
         Lines.SetPosition(vertexCount - 1, copter.transform.position);
-        arrowPS.Play();
-		linePS.Play ();
+        //arrowPS.Play();
+        //linePS.Play ();
     }
 
     void Update()
@@ -123,51 +128,36 @@ public class Main : MonoBehaviour
 
     void OnGUI()
     {
+        Rect btnUpRect = new Rect(Screen.width * 0.9f, 65, 75, 50);
         GUI.skin = UISkin;
-        GUI.Label(new Rect(Screen.width * 0.5f, Screen.height * 0.2f, 250, 50), "Score: " + gameGrid.GameBoard.Length);
-        GUI.Label(new Rect(Screen.width * 0.5f, Screen.height * 0.3f, 250, 100), "CurrSquare: " + goPlanePosition.transform.position.ToString());
-        GUI.Box(new Rect(Screen.width * 0.01f, Screen.height * 0.1f, 250, 500), GUIContent.none);
-      
-        for (int i = 0; i < gameGrid.GameBoard.Length-1; i++ )
+
+        if (TopDownEditingCam.enabled && !CopterCam.enabled)
         {
-            for (int j = 0; j < gameGrid.GameBoard.Length - 1; j++) { }
-               // GUI.Label(new Rect(Screen.width * 0.01f, Screen.height * 0.1f + (j * 60), 250, 200), "Squares: " + gameGrid.GameBoard[i, j].Position);
+            GUI.BeginGroup(new Rect(90, 90, 150, 740));
+
+            GUI.Box(new Rect(0, 0, 150, 740), topDownButtonsBG, GUI.skin.GetStyle("Label"));
+            for (int i = 0; i < gameGrid.GameBoard.Length - 1; i++)
+            {
+                for (int j = 0; j < gameGrid.GameBoard.Length - 1; j++) { }
+                // GUI.Label(new Rect(Screen.width * 0.01f, Screen.height * 0.1f + (j * 60), 250, 200), "Squares: " + gameGrid.GameBoard[i, j].Position);
+            }
+
+            if (moving)
+            {
+                if (GUI.Button(new Rect(-100, 0, 350, 100), stopButton, GUI.skin.GetStyle("Label")))
+                {
+                    moving = false;
+                }
+            }
+            else
+            {
+                if (GUI.Button(new Rect(-100, 0, 350, 100), goButton, GUI.skin.GetStyle("Label")))
+                {
+                    moving = true;
+                }
+            }
+            GUI.EndGroup();
         }
-        GUI.Box(new Rect(10, 800, 250, 25), Vector3.Distance(target, copter.transform.position).ToString());
-        GUI.Box(new Rect(10, 825, 250, 25), "Position counter: " + pathPosCount);
-        GUI.Box(new Rect(10, 850, 250, 25), "Position counter: " + pathPosCount);
-        GUI.Label(new Rect(Screen.width * 0.79f, 10, 200, 200), "Change Camera Width");
-        GUI.Label(new Rect(Screen.width * 0.79f, 230, 200, 200), "Change Camera Height");
-
-
-        if (GUI.Button(new Rect(Screen.width * 0.9f, 65, 75, 50), "Up") && cameraX < 1)
-        {
-            cameraX += 0.1f;
-        }
-
-        if (GUI.Button(new Rect(Screen.width * 0.9f, 295, 75, 50), "Up") && cameraY < 1)
-        {
-            cameraY += 0.1f;
-        }
-
-        if (GUI.Button(new Rect(Screen.width * 0.9f, 135, 75, 50), "Down") && cameraX > 0)
-        {
-            cameraX -= 0.1f;
-        }
-
-        if (GUI.Button(new Rect(Screen.width * 0.9f, 365, 75, 50), "Down") && cameraY > 0)
-        {
-            cameraY -= 0.1f;
-        }
-
-
-
-        if (GUI.Button(new Rect(Screen.width * 0.9f, 775, 150, 50), "Move Control"))
-        {
-            moving = !moving;
-        }
-
-
         if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
         {
             drawingPath = false;
@@ -178,11 +168,9 @@ public class Main : MonoBehaviour
             curDirective = 0;
             pathPosCount = 0;
             target = directives[curDirective].Points[pathPosCount];
-
             copter.SetActive(true);
         }
-        
-        
+
         MouseControls();
         KeyboardControls();
     }
@@ -279,7 +267,7 @@ public class Main : MonoBehaviour
                         Vector3 p = new Vector3(hit.point.x, hit.point.y + 6, hit.point.z);
                         directives[curDirective].Points.Add(p);
                         directives[curDirective].Distance += Vector3.Distance(
-                            directives[curDirective].Points[directives[curDirective].Points.Count - 2], 
+                            directives[curDirective].Points[directives[curDirective].Points.Count - 2],
                             directives[curDirective].Points[directives[curDirective].Points.Count - 1]);
                         vertexCount++;
                         Lines.SetVertexCount(vertexCount);
@@ -312,17 +300,18 @@ public class Main : MonoBehaviour
             if (selDirective == -1)
             {
                 int t = getIndexOnClick(PerspectiveEditingCam);
-                
+
                 selDirective = t;
                 mouseDragDirective = t;
                 if (t > -1)
-				{
+                {
                     arrowPS.enableEmission = true;
-					for(int i = 1; i < directives[t].Points.Count - 1; i++) {
-						lineparticles.Add (Instantiate(linePS) as ParticleSystem);
-						lineparticles[lineparticles.Count - 1].enableEmission = true;
-					}
-				}
+                    for (int i = 1; i < directives[t].Points.Count - 1; i++)
+                    {
+                        lineparticles.Add(Instantiate(linePS) as ParticleSystem);
+                        lineparticles[lineparticles.Count - 1].enableEmission = true;
+                    }
+                }
             }
         }
         if (mouseDragDirective > -1)
@@ -381,9 +370,9 @@ public class Main : MonoBehaviour
                 break;
             case CameraType.PerspectiveEditing:
                 if (selDirective > -1)
-                    EditDirective(); 
+                    EditDirective();
                 SelectDirectiveAndDrag();
-               
+
                 PerspectiveCameraControls(dMouse);
                 break;
             case CameraType.Copter:
@@ -425,10 +414,10 @@ public class Main : MonoBehaviour
             {
                 d.Pyramid.renderer.material.color = new Color(0.3f, 1.0f, 0.3f);
                 selDirective = -1;
-				arrowPS.enableEmission = false;
-				for(int i = 0; i < lineparticles.Count; i++)
-					Destroy(lineparticles[i]);
-				lineparticles.Clear();
+                arrowPS.enableEmission = false;
+                for (int i = 0; i < lineparticles.Count; i++)
+                    Destroy(lineparticles[i]);
+                lineparticles.Clear();
             }
     }
 
@@ -437,9 +426,9 @@ public class Main : MonoBehaviour
         if (selDirective > -1)
         {
             Directive d = directives[selDirective];
-			d.Highlight(lineparticles);
+            d.Highlight(lineparticles);
 
-			if (GUI.Button(new Rect(5, 25, 310, 20), "Pos X:" + d.Position.x.ToString("0.0") + " Y:" + d.Position.y.ToString("0.0") + " Z:" + d.Position.z.ToString("0.0")))
+            if (GUI.Button(new Rect(5, 25, 310, 20), "Pos X:" + d.Position.x.ToString("0.0") + " Y:" + d.Position.y.ToString("0.0") + " Z:" + d.Position.z.ToString("0.0")))
             {
                 mouseDragDirective = selDirective;
             }
@@ -477,18 +466,18 @@ public class Main : MonoBehaviour
                 else if (Input.GetMouseButtonUp(1))
                     d.WaitTime = Mathf.Max(0.0f, d.WaitTime - 0.1f);
             }
-            if (GUI.Button(new Rect(30, 195, 250, 20), "# data points: " + d.Points.Count.ToString())) 
-                
-            if (GUI.Button(new Rect(90, 235, 150, 30), "CLOSE"))
-			{
-				d.Pyramid.renderer.material.color = new Color(0.3f, 1.0f, 0.3f);
-				selDirective = -1;
-				arrowPS.enableEmission = false;
-				linePS.enableEmission = false;
-				for(int i = 0; i < lineparticles.Count; i++)
-					Destroy(lineparticles[i]);
-				lineparticles.Clear();
-			}
+            if (GUI.Button(new Rect(30, 195, 250, 20), "# data points: " + d.Points.Count.ToString()))
+
+                if (GUI.Button(new Rect(90, 235, 150, 30), "CLOSE"))
+                {
+                    d.Pyramid.renderer.material.color = new Color(0.3f, 1.0f, 0.3f);
+                    selDirective = -1;
+                    arrowPS.enableEmission = false;
+                    linePS.enableEmission = false;
+                    for (int i = 0; i < lineparticles.Count; i++)
+                        Destroy(lineparticles[i]);
+                    lineparticles.Clear();
+                }
         }
     }
     void CameraChecking()

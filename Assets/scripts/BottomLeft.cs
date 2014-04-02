@@ -21,6 +21,7 @@ public class BottomLeft : MonoBehaviour {
 
 	void OnMouseDown()
 	{
-		Application.LoadLevel ("Test02032014");
+        //Hard coded based on the levels I dropped in the build settings
+		Application.LoadLevel(1);
 	}
 }
