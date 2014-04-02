@@ -61,11 +61,30 @@ public class Directive
         InitVariables();
     }
 
-    // Update is called once per frame
-    void Update()
+    // Update is called once per frame - NOT TRUE
+    public void Update(ParticleSystem PS, float speed)
     {
+        if (Highlight)
+        {
+            index = (index + 1) % Points.Count;
+            PS.enableEmission = (index != 0);
+            PS.transform.position = Points[index];
 
+            /*
+            Vector3 direction = Points[index] - PS.transform.position;
+            if (direction.magnitude > 0.1f)
+            {
+                PS.enableEmission = (index != 0);
+                PS.transform.position += direction.normalized * 5.0f;
+            }
+            else
+            {
+                index = (index + 1) % Points.Count;
+            }//*/
+        }
     }
+    int index;
+
     /// <summary>
     /// Creates a directive at the given points, with a look and distance value
     /// </summary>
@@ -225,11 +244,24 @@ public class Directive
         Points = new List<Vector3>();
         Alignment = ArcAlignment.None;
     }
+    // Determines if this directive is highlighted
+    private bool highlight;
+    public bool Highlight
+    {
+        get { return highlight; }
+        set
+        {
+            if (value && !highlight)
+            {
+                StartTime = Time.time;
+                Debug.Log("P[0] = " + Points[0]);
+                Debug.Log("P[C] = " + Points[Points.Count - 1]);
+            }
+            highlight = value;
+        }
+    }
 
-	public void Highlight(List<ParticleSystem> particles) {
-		for(int i = 1; i < Points.Count - 1; i++)
-				particles[i - 1].transform.position = Points[i];
-	}
+    public float StartTime { get; set; }
 }
 public class Bezier
 {
