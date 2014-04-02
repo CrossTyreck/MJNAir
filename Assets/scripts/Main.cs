@@ -254,15 +254,13 @@ public class Main : MonoBehaviour
             {
                 Ray ray = cam.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit = new RaycastHit();
-                int x1 = (int)(ray.origin.x);
-                int y1 = (int)(ray.origin.z);
-                int x2 = (int)(directives[curDirective].Points[directives[curDirective].Points.Count - 1].x);
-                int y2 = (int)(directives[curDirective].Points[directives[curDirective].Points.Count - 1].z);
-                if (x1 != x2 || y1 != y2)
+				if (gameGroundLevel.collider.Raycast(ray, out hit, cam.farClipPlane))
                 {
-                    if (gameGroundLevel.collider.Raycast(ray, out hit, cam.farClipPlane))
-                    {
-                        Vector3 p = new Vector3(hit.point.x, hit.point.y + 6, hit.point.z);
+					Vector3 p = new Vector3(hit.point.x, hit.point.y + 6, hit.point.z);
+					float d = Vector3.Distance(directives[curDirective].Points[directives[curDirective].Points.Count - 1], p);
+					Debug.Log (d.ToString("0.00") + p);
+					if (d > 0.01f)
+					{
                         directives[curDirective].Points.Add(p);
                         directives[curDirective].Distance += Vector3.Distance(
                             directives[curDirective].Points[directives[curDirective].Points.Count - 2],
@@ -272,7 +270,7 @@ public class Main : MonoBehaviour
                         Lines.SetPosition(vertexCount - 1, p);
                     }
                 }
-            }
+			}
         }
     }
     int getIndexOnClick(Camera cam)

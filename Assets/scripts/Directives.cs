@@ -64,25 +64,24 @@ public class Directive
     // Update is called once per frame - NOT TRUE
     public void Update(ParticleSystem PS, float speed)
     {
-        if (Highlight)
-        {
-            //index = (index + 1) % Points.Count;
-            //PS.enableEmission = (index != 0);
-            //PS.transform.position = Points[index];
+        if (Highlight) {
+						//index = (index + 1) % Points.Count;
+						//PS.enableEmission = (index != 0);
+						//PS.transform.position = Points[index];
 
             
-            Vector3 direction = Points[index] - PS.transform.position;
-            float d = direction.magnitude;
-            if (d > 0.1f)
-            {
-                PS.enableEmission = (index != 0);
-                PS.transform.position += direction.normalized * Time.deltaTime * 100;
-            }
-            else
-            {
-                index = (index + 1) % Points.Count;
-            }
-        }
+						Vector3 direction = Points [index] - PS.transform.position;
+						
+						PS.enableEmission = (index != 0);
+						Vector3 next = direction.normalized * Time.deltaTime * 100f;
+						PS.transform.position += next;
+			if (direction.magnitude < 50f) {
+								Debug.Log (index);
+								index = (index + 1) % Points.Count;
+						}
+				} else {
+						index = 0;
+				}
     }
     int index;
 
@@ -255,8 +254,6 @@ public class Directive
             if (value && !highlight)
             {
                 StartTime = Time.time;
-                Debug.Log("P[0] = " + Points[0]);
-                Debug.Log("P[C] = " + Points[Points.Count - 1]);
             }
             highlight = value;
         }
