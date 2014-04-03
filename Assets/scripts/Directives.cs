@@ -54,6 +54,13 @@ public class Directive
     /// <value>The wait time.</value>
     public float WaitTime { get; set; }
 
+	/// <summary>
+	///  The line object attached to this directive
+	/// </summary>
+	/// <value>The line.</value>
+	public GameObject LineObject { get; set; }
+	public LineRenderer Line;
+	public int VertexCount;
     // Use this for initialization
     void Start()
     {
@@ -61,94 +68,113 @@ public class Directive
         InitVariables();
     }
 
+	int index; // the index used to move the particle system along this line
     // Update is called once per frame - NOT TRUE
     public void Update(ParticleSystem PS)
     {
-        if (Highlight) {
-						//index = (index + 1) % Points.Count;
-						//PS.enableEmission = (index != 0);
-						//PS.transform.position = Points[index];
-
-            
-						Vector3 direction = Points [index] - PS.transform.position;
-						
-						PS.enableEmission = (index != 0);
-						Vector3 next = direction.normalized * Time.deltaTime * 10f * Speed;
-						PS.transform.position += next;
-			if (direction.magnitude < 0.5f) {
-								index = (index + 1) % Points.Count;
-						}
-				} else {
-						index = 0;
-				}
+        if (Highlight) 
+		{   
+			Line.material.color = Color.white;
+			PS.enableEmission = (index != 0);
+			Vector3 direction = Points [index] - PS.transform.position;
+			Vector3 next = direction.normalized * Time.deltaTime * Speed * 20f;
+			float dmag = direction.magnitude;
+			if(next.magnitude > dmag)
+			{
+				PS.transform.position = Points[index];
+				index = (index + 1) % Points.Count;
+			}
+			else 
+			{
+				PS.transform.position += next;
+				if (dmag < 0.2f) 
+					index = (index + 1) % Points.Count;
+			}
+		} 
+		else
+		{
+			Line.material.color = new Color(0.245f, 1f, 0f);
+			index = 0;
+		}
     }
-    int index;
+    
 
     /// <summary>
     /// Creates a directive at the given points, with a look and distance value
     /// </summary>
     /// <param name="position"></param>
     /// <param name="lastPosition"></param>
-    public Directive(Vector3 position, GameObject pyramid)
+    public Directive(Vector3 position, GameObject pyramid, GameObject lineobject)
     {
         InitVariables();
         this.Position = position;
         this.Pyramid = pyramid;
         this.Pyramid.transform.position = position;
+		this.LineObject = lineobject;
+		this.Line = this.LineObject.GetComponent<LineRenderer> ();
+		VertexCount++;
+		Line.SetVertexCount(VertexCount);
+		Line.SetPosition (VertexCount - 1, position);
         this.Points.Add(position);
     }
-    public void Set(Vector3 position, LineRenderer lines, List<Directive> dirs, int id)
+    public void Set(Vector3 position, int id, List<Directive> dirs)
     {
         this.Position = position;
         this.Points[0] = position;
         this.Pyramid.transform.position = position;
-        int startIndex = 0;
-        for (int i = 0; i < id; i++)
-            startIndex += dirs[i].Points.Count - 1;
-        lines.SetPosition(startIndex, Position);
+		Line.SetPosition (0, Position);
+		if (id > 0)
+			dirs[id - 1].Line.SetPosition (dirs[id - 1].VertexCount - 1, Position);
         FindDistanceToNextDirective();
     }
-    public void FindDistanceToNextDirective()
-    {
-        float d = 0f;
-        for (int i = 1; i < Points.Count; i++)
-            d += Vector3.Distance(Points[i], Points[i - 1]);
+	public void AddPoint(Vector3 p) 
+	{
+		Points.Add (p);
+		Distance += Vector3.Distance(
+			Points[Points.Count - 2],
+			Points[Points.Count - 1]);
+		VertexCount++;
+		Line.SetVertexCount(VertexCount);
+		Line.SetPosition(VertexCount - 1, p);
+	}
+
+	public void FindDistanceToNextDirective()
+	{
+		float d = 0f;
+		for (int i = 1; i < Points.Count; i++)
+			d += Vector3.Distance(Points[i], Points[i - 1]);
         Distance = d;
     }
-    private void AlignToMe(LineRenderer lines, Directive me, int startIndex)
+    private void AlignToMe(Directive me)
     {
         if (Alignment == ArcAlignment.None)
             return;
         Vector3 endPoint = me.Points[0];
         Vector3 startPoint = Points[0];
-        AlignmentSwitch(startPoint, endPoint, startIndex, lines);
+        AlignmentSwitch(startPoint, endPoint);
     }
-    public void Align(LineRenderer lines, List<Directive> dirs, int id)
+    public void Align(List<Directive> dirs, int id)
     {
-        int startIndex = 0;
-        for (int i = 0; i < id; i++)
-            startIndex += dirs[i].Points.Count - 1;
         if (Alignment == ArcAlignment.None || Points.Count == 1)
         {
             if (id > 0)
             {
-                dirs[id - 1].AlignToMe(lines, this, startIndex - dirs[id - 1].Points.Count + 1);
+                dirs[id - 1].AlignToMe(this);
             }
             Points[0] = Position;
-            lines.SetPosition(startIndex, Position);
+			Line.SetPosition (0, Position);
             return;
         }
         int nextid = id < dirs.Count - 1 ? id + 1 : -1;
         Vector3 endPoint = nextid > -1 ? dirs[nextid].Points[0] : Points[Points.Count - 1];
         Vector3 startPoint = Points[0];
-        int endIndex = startIndex + Points.Count - 1;
 
-        AlignmentSwitch(startPoint, endPoint, startIndex, lines);
-        SetEndPoints(nextid, endPoint, endIndex, startIndex, id, dirs, lines);
+        AlignmentSwitch(startPoint, endPoint);
+        SetEndPoints(nextid, endPoint, id, dirs);
         Points[0] = Position;
-        lines.SetPosition(startIndex, Position);
+		Line.SetPosition (0, Position);
     }
-    void AlignmentSwitch(Vector3 startPoint, Vector3 endPoint, int startIndex, LineRenderer lines)
+    void AlignmentSwitch(Vector3 startPoint, Vector3 endPoint)
     {
         Bezier b = new Bezier(Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero);
         Vector3 dif = new Vector3((startPoint.x - endPoint.x) / 2, (startPoint.y - endPoint.y) / 2, (startPoint.z - endPoint.z) / 2);
@@ -159,7 +185,7 @@ public class Directive
                 {
                     float n = (float)(i) / (float)(Points.Count - 1);
                     Points[i] = Vector3.Lerp(Position, endPoint, n);
-                    lines.SetPosition(startIndex + i, Points[i]);
+					Line.SetPosition(i, Points[i]);
                 }
                 break;
             case ArcAlignment.YZCurve:
@@ -170,7 +196,7 @@ public class Directive
                     float n = (float)(i) / (float)(Points.Count - 1);
                     Vector3 newPoint = new Vector3(Points[i].x, b.GetPointAtTime(n).y, b.GetPointAtTime(n).z);
                     Points[i] = newPoint;
-                    lines.SetPosition(startIndex + i, Points[i]);
+					Line.SetPosition(i, Points[i]);
                 }
                 break;
             case ArcAlignment.XZCurve:
@@ -181,7 +207,7 @@ public class Directive
                     float n = (float)(i) / (float)(Points.Count - 1);
                     Vector3 newPoint = new Vector3(b.GetPointAtTime(n).x, Points[i].y, b.GetPointAtTime(n).z);
                     Points[i] = newPoint;
-                    lines.SetPosition(startIndex + i, Points[i]);
+					Line.SetPosition(i, Points[i]);
                 }
                 break;
             case ArcAlignment.XCurve:
@@ -191,8 +217,8 @@ public class Directive
                 {
                     float n = (float)(i) / (float)(Points.Count - 1);
                     Vector3 newPoint = new Vector3(b.GetPointAtTime(n).x, Points[i].y, Points[i].z);
-                    Points[i] = b.GetPointAtTime(n);
-                    lines.SetPosition(startIndex + i, Points[i]);
+                    Points[i] = b.GetPointAtTime(n);;
+					Line.SetPosition(i, Points[i]);
                 }
                 break;
             case ArcAlignment.YCurve:
@@ -203,7 +229,7 @@ public class Directive
                     float n = (float)(i) / (float)(Points.Count - 1);
                     Vector3 newPoint = new Vector3(Points[i].x, b.GetPointAtTime(n).y, Points[i].z);
                     Points[i] = newPoint;
-                    lines.SetPosition(startIndex + i, Points[i]);
+					Line.SetPosition(i, Points[i]);
                 }
                 break;
             case ArcAlignment.ZCurve:
@@ -214,7 +240,7 @@ public class Directive
                     float n = (float)(i) / (float)(Points.Count - 1);
                     Vector3 newPoint = new Vector3(Points[i].x, Points[i].y, b.GetPointAtTime(n).z);
                     Points[i] = newPoint;
-                    lines.SetPosition(startIndex + i, Points[i]);
+					Line.SetPosition(i, Points[i]);
                 }
                 break;
             default:
@@ -222,21 +248,22 @@ public class Directive
         }
         FindDistanceToNextDirective();
     }
-    void SetEndPoints(int nextid, Vector3 endPoint, int endIndex, int startIndex, int id, List<Directive> dirs, LineRenderer lines)
+    void SetEndPoints(int nextid, Vector3 endPoint, int id, List<Directive> dirs)
     {
         if (nextid > -1)
         {
             dirs[nextid].Position = endPoint;
             dirs[nextid].Points[0] = endPoint;
-            lines.SetPosition(endIndex, endPoint);
+			Line.SetPosition(Points.Count - 1, Points[Points.Count - 1]);
         }
         if (id > 0)
-            dirs[id - 1].AlignToMe(lines, this, startIndex - dirs[id - 1].Points.Count + 1);
+            dirs[id - 1].AlignToMe(this);
     }
 
     void InitVariables()
     {
-        LookVector = new Vector3(0, 0, 0);
+		VertexCount = 0;
+        LookVector = Vector3.forward;
         Speed = 1.0f;
         Distance = 0;
         WaitTime = 0.0f;
@@ -244,21 +271,7 @@ public class Directive
         Alignment = ArcAlignment.None;
     }
     // Determines if this directive is highlighted
-    private bool highlight;
-    public bool Highlight
-    {
-        get { return highlight; }
-        set
-        {
-            if (value && !highlight)
-            {
-                StartTime = Time.time;
-            }
-            highlight = value;
-        }
-    }
-
-    public float StartTime { get; set; }
+	public bool Highlight { get; set; }
 }
 public class Bezier
 {

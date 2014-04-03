@@ -20,7 +20,6 @@ public class Main : MonoBehaviour
     public Camera TopDownEditingCam;
     public Camera CopterCam;
     public GameObject Arrow;
-    public LineRenderer Lines;
 	public ParticleSystem arrowPS;
     public Texture cameraUp;
     public Texture topDownButtonsBG;
@@ -29,7 +28,6 @@ public class Main : MonoBehaviour
     int mouseDragDirective = -1;
     int selDirective = -1;
     int curDirective = 0;
-    int vertexCount = 0;
     Vector3 pMouse = Vector3.zero;
     List<Directive> directives = new List<Directive>();
     float cameraX = 0;
@@ -52,6 +50,7 @@ public class Main : MonoBehaviour
     public bool endingCondition = false;
     public Transform gameBoard;
     public GameObject goPlanePosition;
+	public GameObject Line;
 
     #endregion
 
@@ -71,10 +70,7 @@ public class Main : MonoBehaviour
         customGUIStyle = new GUIStyle();
         customGUIStyle.fontSize = 14;
         copter.SetActive(false);
-        directives.Add(new Directive(copter.transform.position, Instantiate(Arrow) as GameObject));
-        vertexCount++;
-        Lines.SetVertexCount(vertexCount);
-        Lines.SetPosition(vertexCount - 1, copter.transform.position);
+        directives.Add(new Directive(copter.transform.position, Instantiate(Arrow) as GameObject, Instantiate(Line) as GameObject));
         arrowPS.Play();
     }
 
@@ -243,7 +239,7 @@ public class Main : MonoBehaviour
             {
                 if (directives[directives.Count - 1].Position != directives[curDirective].Points[directives[curDirective].Points.Count - 1])
                 {
-                    directives.Add(new Directive(directives[curDirective].Points[directives[curDirective].Points.Count - 1], Instantiate(Arrow) as GameObject));
+                    directives.Add(new Directive(directives[curDirective].Points[directives[curDirective].Points.Count - 1], Instantiate(Arrow) as GameObject, Instantiate(Line) as GameObject));
                     curDirective++;
                 }
             }
@@ -258,17 +254,8 @@ public class Main : MonoBehaviour
                 {
 					Vector3 p = new Vector3(hit.point.x, hit.point.y + 6, hit.point.z);
 					float d = Vector3.Distance(directives[curDirective].Points[directives[curDirective].Points.Count - 1], p);
-					Debug.Log (d.ToString("0.00") + p);
 					if (d > 0.01f)
-					{
-                        directives[curDirective].Points.Add(p);
-                        directives[curDirective].Distance += Vector3.Distance(
-                            directives[curDirective].Points[directives[curDirective].Points.Count - 2],
-                            directives[curDirective].Points[directives[curDirective].Points.Count - 1]);
-                        vertexCount++;
-                        Lines.SetVertexCount(vertexCount);
-                        Lines.SetPosition(vertexCount - 1, p);
-                    }
+						directives[curDirective].AddPoint(p);
                 }
 			}
         }
@@ -316,11 +303,11 @@ public class Main : MonoBehaviour
                 draggedLineIndex += directives[i].Points.Count - 1;
 
             if (Input.GetKey(KeyCode.LeftShift))
-                directives[mouseDragDirective].Set(r.GetPoint(t), Lines, directives, mouseDragDirective);
+                directives[mouseDragDirective].Set(r.GetPoint(t), mouseDragDirective, directives);
             else
-                directives[mouseDragDirective].Set(directives[mouseDragDirective].Position + new Vector3(0, dif.y * 0.03f, 0), Lines, directives, mouseDragDirective);
-
-            if (Input.GetMouseButtonUp(0))
+				directives[mouseDragDirective].Set(directives[mouseDragDirective].Position + new Vector3(0, dif.y * 0.03f, 0), mouseDragDirective, directives);
+			
+			if (Input.GetMouseButtonUp(0))
             {
                 directives[mouseDragDirective].Pyramid.renderer.material.color = new Color(0.3f, 1.0f, 0.3f);
                 mouseDragDirective = -1;
@@ -509,7 +496,7 @@ public class Main : MonoBehaviour
     void AlignAllDirectives()
     {
         for (int i = 0; i < directives.Count; i++)
-            directives[i].Align(Lines, directives, i);
+            directives[i].Align(directives, i);
     }
     #endregion
 }
