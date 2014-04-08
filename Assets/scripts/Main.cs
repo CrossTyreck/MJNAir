@@ -50,7 +50,7 @@ public class Main : MonoBehaviour
     public bool endingCondition = false;
     public Transform gameBoard;
     public GameObject goPlanePosition;
-
+    public GUISkin GUISkin;
     #endregion
 
 
@@ -261,16 +261,12 @@ public class Main : MonoBehaviour
     }
     int getIndexOnClick(Camera cam)
     {
-        
         if (directives.Count > 0)
         {
-            print(directives.Count);
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            print(directives.Count + "bah");
             if (Physics.Raycast(ray, out hit, cam.farClipPlane))
             {
-                print("here");
                 for (int i = 0; i < directives.Count; i++)
                     if (hit.collider.gameObject.Equals(directives[i].Pyramid))
                         return i;
@@ -282,7 +278,6 @@ public class Main : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            print(selDirective.ToString());
             if (selDirective == -1)
             {
                 int t = getIndexOnClick(PerspectiveEditingCam);
@@ -429,27 +424,21 @@ public class Main : MonoBehaviour
             {
                 AlignAllDirectives();
             }
-            else if (GUI.Button(new Rect(30, 120, 250, 20), "Dist to next: " + d.Distance.ToString("0.0")))
-            {
-
-            }
-            else if (GUI.Button(new Rect(30, 145, 250, 20), "Set speed: " + d.Speed.ToString("0.0")))
-            {
-                if (Input.GetMouseButtonUp(0))
-                    d.Speed += 0.1f;
-                else if (Input.GetMouseButtonUp(1))
-                    d.Speed = Mathf.Max(0.0f, d.Speed - 0.1f);
-            }
-            if (GUI.Button(new Rect(30, 170, 250, 20), "Wait for: " + d.WaitTime.ToString("0.0") + "s"))
+            // THE SPEED SLIDER
+            GUI.skin = GUISkin;
+            GUI.Label(new Rect(30, 118, 250, 30), "Line Length: " + d.Distance.ToString("0.00"));
+            d.Speed = GUI.HorizontalSlider(new Rect(10, 145, 220, 30), d.Speed, 0.0f, 5.0f);
+            GUI.Label(new Rect(70, 142, 100, 30), "Speed");
+            GUI.Label(new Rect(240, 142, 70, 30), d.Speed.ToString("0.00"));
+            GUI.skin.button.fontSize = 18;
+            if (GUI.Button(new Rect(30, 170, 250, 28), "Wait for: " + d.WaitTime.ToString("0.0") + "s"))
             {
                 if (Input.GetMouseButtonUp(0))
                     d.WaitTime += 0.1f;
                 else if (Input.GetMouseButtonUp(1))
                     d.WaitTime = Mathf.Max(0.0f, d.WaitTime - 0.1f);
             }
-            if (GUI.Button(new Rect(30, 195, 250, 20), "# data points: " + d.Points.Count.ToString()))
-            {
-            }
+            GUI.Label(new Rect(30, 195, 250, 28), "# data points: " + d.Points.Count.ToString());       
         }
     }
     void CameraChecking()
