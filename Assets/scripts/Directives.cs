@@ -54,11 +54,6 @@ public class Directive
     /// <value>The wait time.</value>
     public float WaitTime { get; set; }
 
-	/// <summary>
-	///  The line object attached to this directive
-	/// </summary>
-	/// <value>The line.</value>
-	public GameObject LineObject { get; set; }
 	public LineRenderer Line;
 	public int VertexCount;
     // Use this for initialization
@@ -104,14 +99,13 @@ public class Directive
     /// </summary>
     /// <param name="position"></param>
     /// <param name="lastPosition"></param>
-    public Directive(Vector3 position, GameObject pyramid, GameObject lineobject)
+    public Directive(Vector3 position, GameObject pyramid)
     {
         InitVariables();
         this.Position = position;
         this.Pyramid = pyramid;
         this.Pyramid.transform.position = position;
-		this.LineObject = lineobject;
-		this.Line = this.LineObject.GetComponent<LineRenderer> ();
+		this.Line = this.Pyramid.GetComponent<LineRenderer> ();
 		VertexCount++;
 		Line.SetVertexCount(VertexCount);
 		Line.SetPosition (VertexCount - 1, position);

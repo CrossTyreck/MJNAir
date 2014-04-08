@@ -50,7 +50,6 @@ public class Main : MonoBehaviour
     public bool endingCondition = false;
     public Transform gameBoard;
     public GameObject goPlanePosition;
-	public GameObject Line;
 
     #endregion
 
@@ -70,7 +69,7 @@ public class Main : MonoBehaviour
         customGUIStyle = new GUIStyle();
         customGUIStyle.fontSize = 14;
         copter.SetActive(false);
-        directives.Add(new Directive(copter.transform.position, Instantiate(Arrow) as GameObject, Instantiate(Line) as GameObject));
+        directives.Add(new Directive(copter.transform.position, Instantiate(Arrow) as GameObject));
         arrowPS.Play();
     }
 
@@ -239,7 +238,7 @@ public class Main : MonoBehaviour
             {
                 if (directives[directives.Count - 1].Position != directives[curDirective].Points[directives[curDirective].Points.Count - 1])
                 {
-                    directives.Add(new Directive(directives[curDirective].Points[directives[curDirective].Points.Count - 1], Instantiate(Arrow) as GameObject, Instantiate(Line) as GameObject));
+                    directives.Add(new Directive(directives[curDirective].Points[directives[curDirective].Points.Count - 1], Instantiate(Arrow) as GameObject));
                     curDirective++;
                 }
             }
@@ -262,13 +261,16 @@ public class Main : MonoBehaviour
     }
     int getIndexOnClick(Camera cam)
     {
+        
         if (directives.Count > 0)
         {
+            print(directives.Count);
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, cam.farClipPlane, 1 << 9))
+            print(directives.Count + "bah");
+            if (Physics.Raycast(ray, out hit, cam.farClipPlane))
             {
-                hit.collider.renderer.material.color = Color.black;
+                print("here");
                 for (int i = 0; i < directives.Count; i++)
                     if (hit.collider.gameObject.Equals(directives[i].Pyramid))
                         return i;
@@ -280,6 +282,7 @@ public class Main : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            print(selDirective.ToString());
             if (selDirective == -1)
             {
                 int t = getIndexOnClick(PerspectiveEditingCam);
