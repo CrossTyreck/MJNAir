@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
+/// <summary>
+/// Attach to the slider button, not the slider~!
+/// </summary>
 public class SpeedSlider : MonoBehaviour
 {
     public GUITexture slider;
@@ -21,7 +25,7 @@ public class SpeedSlider : MonoBehaviour
     void Update()
     {
 
-        speed = Screen.height * transform.position.y;
+        speed = (Screen.height * transform.position.y) * 0.5f;
         if (GameObject.FindGameObjectWithTag("PathEditingCamera").GetComponent<Camera>().enabled)
         {
            GameObject.Find("SpeedSlider").SetActive(false);

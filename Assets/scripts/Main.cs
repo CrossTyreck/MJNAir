@@ -184,7 +184,7 @@ public class Main : MonoBehaviour
         }
         else
         {
-            copter.transform.Rotate(cross, (1.5f * Time.deltaTime) * Mathf.Rad2Deg, relativeTo);
+            copter.transform.Rotate(cross, (0.5f * Time.deltaTime) * Mathf.Rad2Deg, relativeTo);
         }
     }
     float waitTime = 0.0f;
@@ -323,7 +323,8 @@ public class Main : MonoBehaviour
     }
     void OnMouseDown()
     {
-
+       
+      
     }
     void OnMouseUp()
     {
@@ -355,7 +356,9 @@ public class Main : MonoBehaviour
                 PerspectiveCameraControls(dMouse);
                 break;
             case CameraType.Copter:
-                CopterCam.rect = new Rect(cameraX, cameraY, Screen.width * 0.5f, Screen.height);
+                //CopterCam.rect = new Rect(cameraX, cameraY, Screen.width * 0.5f, Screen.height);
+                if(Input.GetMouseButton(0))
+                copter.transform.Rotate(Input.mousePosition, (0.5f * Time.deltaTime) * Mathf.Rad2Deg, relativeTo);
                 break;
         }
         pMouse = Input.mousePosition;
