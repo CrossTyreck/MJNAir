@@ -127,7 +127,7 @@ public class Main : MonoBehaviour
 
         if (TopDownEditingCam.enabled && !CopterCam.enabled)
         {
-            GUI.BeginGroup(new Rect(90, 90, 150, 740));
+            GUI.BeginGroup(new Rect(Screen.width * 0.025f, Screen.height * 0.042f, Screen.width * 0.2f, Screen.height * 0.9f));
 
             GUI.Box(new Rect(0, 0, 150, 740), topDownButtonsBG, GUI.skin.GetStyle("Label"));
             for (int i = 0; i < gameGrid.GameBoard.Length - 1; i++)
@@ -138,14 +138,14 @@ public class Main : MonoBehaviour
 
             if (moving)
             {
-                if (GUI.Button(new Rect(-100, 0, 350, 100), stopButton, GUI.skin.GetStyle("Label")))
+                if (GUI.Button(new Rect(-(Screen.width * 0.078f), 0, 350, 100), stopButton, GUI.skin.GetStyle("Label")))
                 {
                     moving = false;
                 }
             }
             else
             {
-                if (GUI.Button(new Rect(-100, 0, 350, 100), goButton, GUI.skin.GetStyle("Label")))
+                if (GUI.Button(new Rect(-(Screen.width * 0.078f), 0, 350, 100), goButton, GUI.skin.GetStyle("Label")))
                 {
                     moving = true;
                 }
