@@ -348,7 +348,7 @@ public class Main : MonoBehaviour
                 break;
             case CameraType.PerspectiveEditing:
                 if (selDirective > -1)
-                    EditDirective();
+                    EditDirective(dMouse);
                 SelectDirectiveAndDrag();
 
                 PerspectiveCameraControls(dMouse);
@@ -381,7 +381,7 @@ public class Main : MonoBehaviour
             PerspectiveEditingCam.transform.LookAt(terrainCenter);
         }
     }
-    void EditDirective()
+    void EditDirective(Vector3 dMouse)
     {
         Directive d = directives[selDirective];
         Vector3 point = d.Position;
@@ -408,10 +408,6 @@ public class Main : MonoBehaviour
             {
                 mouseDragDirective = selDirective;
             }
-            else if (GUI.Button(new Rect(5, 50, 310, 20), "Look X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0")))
-            {
-
-            }
             else if (GUI.Button(new Rect(5, 85, 200, 20), "Arc Type: " + d.Alignment.ToString()))
             {
                 d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
@@ -424,6 +420,25 @@ public class Main : MonoBehaviour
             {
                 AlignAllDirectives();
             }
+            Vector3 dMouse = Input.mousePosition - pMouse;
+            Rect lookRect = new Rect(5, 50, 310, 20);
+
+
+            if (movingLook)
+            {
+                Vector3 lv = Quaternion.Euler(dMouse.x, dMouse.y, 0) * d.LookVector;
+                print(lv);
+                d.LookVector = lv;
+                if (!Input.GetMouseButton(0))
+                    movingLook = false;
+            }
+            if (Input.GetMouseButton(0))
+                movingLook = true;
+            if (GUI.Button(lookRect, "Look X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0")))
+            {
+                movingLook = true;
+            }
+            
             // THE SPEED SLIDER
             GUI.skin = GUISkin;
             GUI.Label(new Rect(30, 118, 250, 30), "Line Length: " + d.Distance.ToString("0.00"));
@@ -441,6 +456,7 @@ public class Main : MonoBehaviour
             GUI.Label(new Rect(30, 195, 250, 28), "# data points: " + d.Points.Count.ToString());       
         }
     }
+    bool movingLook = false;
     void CameraChecking()
     {
         if (Input.GetKeyDown(KeyCode.RightArrow))
