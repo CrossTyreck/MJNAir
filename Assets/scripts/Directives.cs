@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -69,6 +69,7 @@ public class Directive
     {
         if (Highlight) 
 		{   
+			Pyramid.renderer.material.color = new Color(0.3f, 1.0f, 0.3f);
 			Line.material.color = Color.white;
 			PS.enableEmission = (index != 0);
 			Vector3 direction = Points [index] - PS.transform.position;
@@ -89,6 +90,7 @@ public class Directive
 		else
 		{
 			Line.material.color = new Color(0.245f, 1f, 0f);
+			Pyramid.renderer.material.color = new Color(0.245f, 1f, 0f);
 			index = 0;
 		}
     }
