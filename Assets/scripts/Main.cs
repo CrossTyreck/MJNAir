@@ -21,7 +21,7 @@ public class Main : MonoBehaviour
     public Camera CopterCam;
     public GameObject Arrow;
 	public ParticleSystem arrowPS;
-    public Texture cameraUp;
+    public Texture topDownCameraUI;
     public Texture topDownButtonsBG;
     public Texture goButton;
     public Texture stopButton;
@@ -47,6 +47,12 @@ public class Main : MonoBehaviour
     public GUITexture startButton;
     public GUISkin UISkin;
     public GUIStyle customGUIStyle;
+
+    //Vertical Slider objects
+    public GUIStyle speedButton;
+    public GUIStyle speedSlider;
+    public float sliderValue;
+
     public bool endingCondition = false;
     public Transform gameBoard;
     public GameObject goPlanePosition;
@@ -135,6 +141,8 @@ public class Main : MonoBehaviour
                 // GUI.Label(new Rect(Screen.width * 0.01f, Screen.height * 0.1f + (j * 60), 250, 200), "Squares: " + gameGrid.GameBoard[i, j].Position);
             }
 
+            sliderValue = GUI.VerticalSlider(new Rect(Screen.width * 0.025f, Screen.height * 0.6f, 75, 250), sliderValue, 10.0f, 0.0f, speedSlider, speedButton);
+
             if (moving)
             {
                 if (GUI.Button(new Rect(-(Screen.width * 0.078f), 0, 350, 100), stopButton, GUI.skin.GetStyle("Label")))
@@ -150,6 +158,11 @@ public class Main : MonoBehaviour
                 }
             }
             GUI.EndGroup();
+
+            if (GUI.Button(new Rect(Screen.width * 0.9f, Screen.height * 0.05f, 75, 50), "EXIT"))
+            {
+                Application.Quit();
+            }
         }
         if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
         {
@@ -190,9 +203,9 @@ public class Main : MonoBehaviour
     void MovingAlong()
     {
 
-        if (Vector3.Distance(target, copter.transform.position) > ((speed + SpeedSlider.speed) * Time.deltaTime) && moving)
+        if (Vector3.Distance(target, copter.transform.position) > ((speed + sliderValue) * Time.deltaTime) && moving)
         {
-            copter.transform.position += direction * (speed + SpeedSlider.speed) * Time.deltaTime;
+            copter.transform.position += direction * (speed + sliderValue) * Time.deltaTime;
         }
         else
         {
