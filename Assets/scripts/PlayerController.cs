@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour {
 	/// <summary>
 	/// Determines if the copter is moving.
 	/// </summary>
-	bool moving;
+	public bool moving;
 	/// <summary>
 	/// The next point along this copter's path.
 	/// </summary>
@@ -76,13 +76,14 @@ public class PlayerController : MonoBehaviour {
 				waitTime = 0.0f;
 			}
 		}
+
 		if (moving) 
 		{
 			MovingAlong();
 			//goPlanePosition.transform.position = gameGrid.CopterLocation(copter);
 		}
 	}
-	void OnGui() 
+	void OnGUI() 
 	{
 		// basic player instructions go here
 		if (flashtimer > 0.0f) // for messaging the player involving action or inaction, set flashtimer > 0 and message to desired message

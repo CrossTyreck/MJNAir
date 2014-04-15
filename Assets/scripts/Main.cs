@@ -13,6 +13,7 @@ public class Main : MonoBehaviour
         DualCam = 3
     }
 
+    public PlayerController QuadCopter1;
     ScoringSystem score;
     ScoreBoard gameGrid;
     public GameObject gameGroundLevel;
@@ -34,7 +35,6 @@ public class Main : MonoBehaviour
     float cameraY = 0;
     CameraType camtype = CameraType.TopDownEditing;
     float speed;
-    public GameObject copter;
     Vector3 direction;
     Vector3 cross;
     Vector3 target;
@@ -74,8 +74,8 @@ public class Main : MonoBehaviour
         score.InitializeScore();
         customGUIStyle = new GUIStyle();
         customGUIStyle.fontSize = 14;
-        copter.SetActive(false);
-        directives.Add(new Directive(copter.transform.position, Instantiate(Arrow) as GameObject));
+        QuadCopter1.gameObject.SetActive(false);
+        directives.Add(new Directive(QuadCopter1.transform.position, Instantiate(Arrow) as GameObject));
         arrowPS.Play();
     }
 
@@ -95,27 +95,27 @@ public class Main : MonoBehaviour
         }
 
 
-        if (moving)
-        {
-            SetCopterDirection();
-            MovingAlong();
-            goPlanePosition.transform.position = gameGrid.CopterLocation(copter);
+        //if (moving)
+        //{
+        //    SetCopterDirection();
+        //    MovingAlong();
+        //    goPlanePosition.transform.position = gameGrid.CopterLocation(QuadCopter1.gameObject);
 
-        }
-        else
-        {
-            // if the copter has been given a directive to wait, it waits until the timer is up, 
-            // then continues with its activities
-            if (waitTime > 0.0f)
-            {
-                waitTime -= Time.deltaTime;
-                if (waitTime <= 0.0f)
-                {
-                    moving = true;
-                    waitTime = 0.0f;
-                }
-            }
-        }
+        //}
+        //else
+        //{
+        //    // if the copter has been given a directive to wait, it waits until the timer is up, 
+        //    // then continues with its activities
+        //    if (waitTime > 0.0f)
+        //    {
+        //        waitTime -= Time.deltaTime;
+        //        if (waitTime <= 0.0f)
+        //        {
+        //            moving = true;
+        //            waitTime = 0.0f;
+        //        }
+        //    }
+        //}
 
         if (endingCondition)
         {
@@ -154,7 +154,7 @@ public class Main : MonoBehaviour
             {
                 if (GUI.Button(new Rect(-(Screen.width * 0.078f), 0, 350, 100), goButton, GUI.skin.GetStyle("Label")))
                 {
-                    moving = true;
+                    QuadCopter1.moving = true;
                 }
             }
             GUI.EndGroup();
@@ -170,12 +170,13 @@ public class Main : MonoBehaviour
             moving = true;
             startButton.enabled = false;
             startButton.transform.position = new Vector3(9999, 9999, -100);
-            copter.transform.position = directives[0].Points[0];
+            QuadCopter1.transform.position = directives[0].Points[0];
             curDirective = 0;
             pathPosCount = 0;
             target = directives[curDirective].Points[pathPosCount];
-            copter.SetActive(true);
+            QuadCopter1.gameObject.SetActive(true);
         }
+
 
         MouseControls();
         KeyboardControls();
@@ -185,27 +186,27 @@ public class Main : MonoBehaviour
     void SetCopterDirection()
     {
 
-        direction = Vector3.Normalize(target - copter.transform.position);
-        scale = Vector3.Dot(copter.transform.forward, direction);
+        direction = Vector3.Normalize(target - QuadCopter1.transform.position);
+        scale = Vector3.Dot(QuadCopter1.transform.forward, direction);
         direction = Vector3.Normalize(direction);
-        cross = Vector3.Cross(copter.transform.forward, direction);
+        cross = Vector3.Cross(QuadCopter1.transform.forward, direction);
 
         if (scale > .999f)
         {
-            copter.transform.forward = direction;
+            QuadCopter1.transform.forward = direction;
         }
         else
         {
-            copter.transform.Rotate(cross, (0.5f * Time.deltaTime) * Mathf.Rad2Deg, relativeTo);
+            QuadCopter1.transform.Rotate(cross, (0.5f * Time.deltaTime) * Mathf.Rad2Deg, relativeTo);
         }
     }
     float waitTime = 0.0f;
     void MovingAlong()
     {
 
-        if (Vector3.Distance(target, copter.transform.position) > ((speed + sliderValue) * Time.deltaTime) && moving)
+        if (Vector3.Distance(target, QuadCopter1.transform.position) > ((speed + sliderValue) * Time.deltaTime) && moving)
         {
-            copter.transform.position += direction * (speed + sliderValue) * Time.deltaTime;
+            QuadCopter1.transform.position += direction * (speed + sliderValue) * Time.deltaTime;
         }
         else
         {
@@ -347,29 +348,30 @@ public class Main : MonoBehaviour
         switch (camtype)
         {
             case CameraType.TopDownEditing:
-                TopDownEditMode(TopDownEditingCam);
-                if (Input.GetMouseButton(2))
-                    TopDownEditingCam.transform.position -= (new Vector3(dMouse.x, 0, dMouse.y) * TopDownEditingCam.orthographicSize) * 0.003f;
-                float scroll = Input.GetAxis("Mouse ScrollWheel");
-                if (scroll > 0)
-                {
-                    if (TopDownEditingCam.orthographicSize > 5)
-                        TopDownEditingCam.orthographicSize -= scroll;
-                }
-                if (scroll < 0)
-                    TopDownEditingCam.orthographicSize -= scroll;
+                QuadCopter1.LineDrawingControl(TopDownEditingCam);
+                //TopDownEditMode(TopDownEditingCam);
+                //if (Input.GetMouseButton(2))
+                //    TopDownEditingCam.transform.position -= (new Vector3(dMouse.x, 0, dMouse.y) * TopDownEditingCam.orthographicSize) * 0.003f;
+                //float scroll = Input.GetAxis("Mouse ScrollWheel");
+                //if (scroll > 0)
+                //{
+                //    if (TopDownEditingCam.orthographicSize > 5)
+                //        TopDownEditingCam.orthographicSize -= scroll;
+               // }
+               // if (scroll < 0)
+                //    TopDownEditingCam.orthographicSize -= scroll;
                 break;
             case CameraType.PerspectiveEditing:
-                if (selDirective > -1)
-                    EditDirective(dMouse);
-                SelectDirectiveAndDrag();
-
-                PerspectiveCameraControls(dMouse);
+                //if (selDirective > -1)
+                //    EditDirective(dMouse);
+                //SelectDirectiveAndDrag();
+                QuadCopter1.LineDrawingControl(PerspectiveEditingCam);
+                //PerspectiveCameraControls(dMouse);
                 break;
             case CameraType.Copter:
                 //CopterCam.rect = new Rect(cameraX, cameraY, Screen.width * 0.5f, Screen.height);
                 if(Input.GetMouseButton(0))
-                copter.transform.Rotate(Input.mousePosition, (0.5f * Time.deltaTime) * Mathf.Rad2Deg, relativeTo);
+                QuadCopter1.transform.Rotate(Input.mousePosition, (0.5f * Time.deltaTime) * Mathf.Rad2Deg, relativeTo);
                 break;
         }
         pMouse = Input.mousePosition;
