@@ -81,4 +81,23 @@ public class ScoreBoard
         
         return (Vector3)bsReturn.Position;
     }
+
+    /// <summary>
+    /// Output all board square in the Gameboard
+    /// </summary>
+    /// <returns></returns>
+    public string toString()
+    {
+        if (GameBoard.Length > 0)
+        {
+            foreach (BoardSquare square in GameBoard)
+            {
+                return square.ToString() + "\n";
+            }
+        }
+
+        return GameBoard.Length.ToString();
+
+
+    }
 }
