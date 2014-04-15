@@ -44,7 +44,16 @@ public class PlayerController : MonoBehaviour {
 	Vector3 target;
 	int draggedDirective;
 	int selDirective;
-	int currentDirective;
+    private int _currentDirective;
+    private int currentDirective
+    {
+        get { return _currentDirective; }
+        set
+        {
+            _currentDirective = value;
+            curDir = directives.Count < _currentDirective + 1 ? null : directives[_currentDirective].Pyramid;
+        }
+    }
 	int currentPathPosition;
 	Vector2 pTouchPosition;
     Vector3 pMouse;
@@ -53,6 +62,9 @@ public class PlayerController : MonoBehaviour {
 	public static string Message;
 	public GUISkin customSkin;
 
+    public GameObject curDir;
+    public int listSize;
+
 	void Start () 
 	{
 		directives = new List<Directive>();
@@ -60,15 +72,18 @@ public class PlayerController : MonoBehaviour {
 		selDirective = -1;
 		FlashTimer = 0.0f;
 		Message = "";
-		currentDirective = 0;
+		
 		currentPathPosition = 0;
 		pTouchPosition = Vector3.zero;
         pMouse = Vector3.zero;
-        directives.Add(new Directive(PlayerCopter.transform.position, Arrow));
+        print("Creating starting directive");
+        directives.Add(new Directive(PlayerCopter.transform.position, Instantiate(Arrow) as GameObject));
+        currentDirective = 0;
 	}
 
 	void Update () 
 	{
+        listSize = directives.Count;
 		foreach(Directive d in directives)
 			d.Update(LineParticles);
 		if (FlashTimer > 0.0f)
@@ -132,30 +147,29 @@ public class PlayerController : MonoBehaviour {
             pMouse = Input.mousePosition;
         }
 	}
-	void TopDownEditMode(Camera cam)
-	{
-        
-            if (Input.GetTouch(0).tapCount == 2)
+    void TopDownEditMode(Camera cam)
+    {
+        if (Input.GetTouch(0).tapCount == 2)
+        {
+            if (directives[directives.Count - 1].Position != directives[currentDirective].Points[directives[currentDirective].Points.Count - 1])
             {
-                if (directives[directives.Count - 1].Position != directives[currentDirective].Points[directives[currentDirective].Points.Count - 1])
-                {
-                    directives.Add(new Directive(directives[currentDirective].Points[directives[currentDirective].Points.Count - 1], Instantiate(Resources.Load("prefabs/Arrow")) as GameObject));
-                    currentDirective++;
-                }
+                directives.Add(new Directive(directives[currentDirective].Points[directives[currentDirective].Points.Count - 1], Instantiate(Arrow) as GameObject));
+                currentDirective++;
             }
-            else if(Input.touchCount == 1)
+        }
+        else if (Input.touchCount == 1)
+        {
+            Ray ray = cam.ScreenPointToRay(Input.GetTouch(0).position);
+            RaycastHit hit = new RaycastHit();
+            if (gameGroundLevel.collider.Raycast(ray, out hit, cam.farClipPlane))
             {
-                Ray ray = cam.ScreenPointToRay(Input.GetTouch(0).position);
-                RaycastHit hit = new RaycastHit();
-                if (gameGroundLevel.collider.Raycast(ray, out hit, cam.farClipPlane))
-                {
-                    Vector3 p = new Vector3(hit.point.x, hit.point.y + 6, hit.point.z);
-                    float d = Vector3.Distance(directives[currentDirective].Points[directives[currentDirective].Points.Count - 1], p);
-                    if (d > 0.01f)
-                        directives[currentDirective].AddPoint(p);
-                }
+                Vector3 p = new Vector3(hit.point.x, hit.point.y + 6, hit.point.z);
+                float d = Vector3.Distance(directives[currentDirective].Points[directives[currentDirective].Points.Count - 1], p);
+                if (d > 0.01f)
+                    directives[currentDirective].AddPoint(p);
             }
-	}
+        }
+    }
     void TopDownMouseEdit(Camera cam)
     {
         if (Input.GetKey(KeyCode.LeftShift))
@@ -424,10 +438,10 @@ public class PlayerController : MonoBehaviour {
 	#endregion
 	void MovingAlong()
 	{
-		if (Vector3.Distance(target, PlayerCopter.transform.position) > ((speed + SpeedSlider.speed) * Time.deltaTime) && moving)
+		if (Vector3.Distance(target, PlayerCopter.transform.position) > ((speed) * Time.deltaTime) && moving)
 		{
 			Vector3 direction = target = PlayerCopter.transform.position;
-			PlayerCopter.transform.position += direction * (speed + SpeedSlider.speed) * Time.deltaTime;
+			PlayerCopter.transform.position += direction * (speed) * Time.deltaTime;
 		}
 		else
 		{
