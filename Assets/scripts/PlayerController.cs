@@ -44,16 +44,8 @@ public class PlayerController : MonoBehaviour {
 	Vector3 target;
 	int draggedDirective;
 	int selDirective;
-    private int _currentDirective;
-    private int currentDirective
-    {
-        get { return _currentDirective; }
-        set
-        {
-            _currentDirective = value;
-            curDir = directives.Count < _currentDirective + 1 ? null : directives[_currentDirective].Pyramid;
-        }
-    }
+    int currentDirective;
+
 	int currentPathPosition;
 	Vector2 pTouchPosition;
     Vector3 pMouse;
@@ -61,9 +53,8 @@ public class PlayerController : MonoBehaviour {
 	public static float FlashTimer;
 	public static string Message;
 	public GUISkin customSkin;
+    Rect directiveEditingRect;
 
-    public GameObject curDir;
-    public int listSize;
 
 	void Start () 
 	{
@@ -71,6 +62,7 @@ public class PlayerController : MonoBehaviour {
 		draggedDirective = -1;
 		selDirective = -1;
 		FlashTimer = 0.0f;
+        speed = 1.0f;
 		Message = "";
 		
 		currentPathPosition = 0;
@@ -83,7 +75,6 @@ public class PlayerController : MonoBehaviour {
 
 	void Update () 
 	{
-        listSize = directives.Count;
 		foreach(Directive d in directives)
 			d.Update(LineParticles);
 		if (FlashTimer > 0.0f)
@@ -118,6 +109,32 @@ public class PlayerController : MonoBehaviour {
 		else if(directives.Count < 2)
 			GUI.Label (new Rect(Screen.width * 0.3f, Screen.height * 0.15f, Screen.width * 0.4f, Screen.height * 0.15f), 
 			           "Add additional directives to control your copter by tapping twice");
+
+        if (selDirective > -1)
+        {
+            GUI.Window(0, directiveEditingRect, DirectiveData, "Directive Data");
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                if (Input.touchCount == 1)
+                {
+                    if (Input.GetTouch(0).phase == TouchPhase.Began)
+                        if (!directiveEditingRect.Contains(new Vector2(Input.GetTouch(0).position.x, Screen.height - Input.GetTouch(0).position.y)))
+                        {
+                            directives[selDirective].Highlight = false;
+                            selDirective = -1;
+                        }
+                }
+            }
+            else if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
+            {
+                if (Input.GetMouseButtonDown(0))
+                    if (!directiveEditingRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
+                    {
+                        directives[selDirective].Highlight = false;
+                        selDirective = -1;
+                    }
+            }
+        }
 	}
 
 	public void CopterControl(Camera cam) 
@@ -146,7 +163,13 @@ public class PlayerController : MonoBehaviour {
                 SelectDirectiveAndDragWithMouse(cam);
             pMouse = Input.mousePosition;
         }
+        if (selDirective > -1)
+        {
+            Vector3 point = directives[selDirective].Position;
+            directiveEditingRect = new Rect(cam.WorldToScreenPoint(point).x, Screen.height - cam.WorldToScreenPoint(point).y, 320, 220);
+        }
 	}
+
     void TopDownEditMode(Camera cam)
     {
         if (Input.GetTouch(0).tapCount == 2)
@@ -199,6 +222,7 @@ public class PlayerController : MonoBehaviour {
             }
         }
     }
+
 	int getIndexOnTouch(Camera cam)
 	{
 		if (directives.Count > 0)
@@ -296,145 +320,46 @@ public class PlayerController : MonoBehaviour {
                 draggedDirective = -1;
         }
     }
-	void EditDirective(Camera cam)
-	{
-		Directive d = directives[selDirective];
-		Vector3 point = d.Position;
-		d.Pyramid.renderer.material.color = Color.white;
-		Rect guiRect = new Rect(cam.WorldToScreenPoint(point).x, Screen.height - cam.WorldToScreenPoint(point).y, 320, 220);
-		GUI.Window(0, guiRect, DirectiveData, "Directive Data");
-		if (Input.GetTouch(0).phase == TouchPhase.Began)
-			if (!guiRect.Contains(new Vector2(Input.GetTouch(0).position.x, Screen.height - Input.GetTouch(0).position.y)))
-		{
-			selDirective = -1;
-			d.Highlight = false;
-		}
-	}
-    void EditDirectiveWithMouse(Camera cam)
-	{
-		Directive d = directives[selDirective];
-		Vector3 point = d.Position;
-		d.Pyramid.renderer.material.color = Color.white;
-		Rect guiRect = new Rect(cam.WorldToScreenPoint(point).x, Screen.height - cam.WorldToScreenPoint(point).y, 320, 220);
-		GUI.Window(0, guiRect, DirectiveData2, "Directive Data");
-		if (Input.GetMouseButtonDown(0))
-			if (!guiRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
-		{
-			selDirective = -1;
-			d.Highlight = false;
-		}
-	}
-	
-	void DirectiveData(int id)
-	{
-		if (selDirective > -1)
-		{
-			Directive d = directives[selDirective];
-			
-			if (GUI.Button(new Rect(5, 25, 310, 20), "Pos X:" + d.Position.x.ToString("0.0") + " Y:" + d.Position.y.ToString("0.0") + " Z:" + d.Position.z.ToString("0.0")))
-			{
-				draggedDirective = selDirective;
-			}
-			else if (GUI.Button(new Rect(5, 85, 200, 20), "Arc Type: " + d.Alignment.ToString()))
-			{
-				d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
-			}
-			else if (GUI.Button(new Rect(225, 75, 90, 20), "CHANGE"))
-			{
-				d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
-			}
-			else if (GUI.Button(new Rect(225, 95, 90, 20), "ALIGN"))
-			{
-				AlignAllDirectives();
-			}
-			Vector2 deltaTouchPosition = Input.GetTouch(0).position - pTouchPosition;
-			Rect lookRect = new Rect(5, 50, 310, 20);
+    
 
-			/*
-			if (movingLook)
-			{
-				Vector3 lv = Quaternion.Euler(dMouse.x, dMouse.y, 0) * d.LookVector;
-				print(lv);
-				d.LookVector = lv;
-				if (!Input.GetMouseButton(0))
-					movingLook = false;
-			}
-			if (Input.GetMouseButton(0))
-				movingLook = true;
-			if (GUI.Button(lookRect, "Look X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0")))
-			{
-				movingLook = true;
-			}
-			*/
-			// THE SPEED SLIDER
-			GUI.skin = customSkin;
-			GUI.Label(new Rect(30, 118, 250, 30), "Line Length: " + d.Distance.ToString("0.00"));
-			d.Speed = GUI.HorizontalSlider(new Rect(10, 145, 220, 30), d.Speed, 0.0f, 5.0f);
-			GUI.Label(new Rect(70, 142, 100, 30), "Speed");
-			GUI.Label(new Rect(240, 142, 70, 30), d.Speed.ToString("0.00"));
-			// THE WAIT TIME SLIDER
-			d.Speed = GUI.HorizontalSlider(new Rect(10, 170, 220, 30), d.WaitTime, 0.0f, 20.0f);
-			GUI.Label(new Rect(70, 170, 100, 30), "Wait Time");
-			GUI.Label(new Rect(240, 170, 70, 30), d.WaitTime.ToString("0.00") + "s");
-			GUI.skin.button.fontSize = 18;
-			GUI.Label(new Rect(30, 195, 250, 28), "# data points: " + d.Points.Count.ToString());       
-		}
-	}
-    void DirectiveData2(int id)
-	{
-		if (selDirective > -1)
-		{
-			Directive d = directives[selDirective];
-			
-			if (GUI.Button(new Rect(5, 25, 310, 20), "Pos X:" + d.Position.x.ToString("0.0") + " Y:" + d.Position.y.ToString("0.0") + " Z:" + d.Position.z.ToString("0.0")))
-			{
-				draggedDirective = selDirective;
-			}
-			else if (GUI.Button(new Rect(5, 85, 200, 20), "Arc Type: " + d.Alignment.ToString()))
-			{
-				d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
-			}
-			else if (GUI.Button(new Rect(225, 75, 90, 20), "CHANGE"))
-			{
-				d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
-			}
-			else if (GUI.Button(new Rect(225, 95, 90, 20), "ALIGN"))
-			{
-				AlignAllDirectives();
-			}
-			//Vector2 deltaTouchPosition = Input.mousePosition - pMouse;
-			//Rect lookRect = new Rect(5, 50, 310, 20);
+    void DirectiveData(int id)
+    {
+        if (!(selDirective > -1))
+            return;
+        Directive d = directives[selDirective];
+        if (GUI.Button(new Rect(5, 25, 310, 20), "Pos X:" + d.Position.x.ToString("0.0") + " Y:" + d.Position.y.ToString("0.0") + " Z:" + d.Position.z.ToString("0.0")))
+        {
+            draggedDirective = selDirective;
+        }
+        else if (GUI.Button(new Rect(5, 85, 200, 20), "Arc Type: " + d.Alignment.ToString()))
+        {
+            d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
+        }
+        else if (GUI.Button(new Rect(225, 75, 90, 20), "CHANGE"))
+        {
+            d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
+        }
+        else if (GUI.Button(new Rect(225, 95, 90, 20), "ALIGN"))
+        {
+            AlignAllDirectives();
+        }
+        GUI.Button(new Rect(5, 50, 310, 20), "Look X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0"));
 
-			/*
-			if (movingLook)
-			{
-				Vector3 lv = Quaternion.Euler(dMouse.x, dMouse.y, 0) * d.LookVector;
-				print(lv);
-				d.LookVector = lv;
-				if (!Input.GetMouseButton(0))
-					movingLook = false;
-			}
-			if (Input.GetMouseButton(0))
-				movingLook = true;
-			if (GUI.Button(lookRect, "Look X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0")))
-			{
-				movingLook = true;
-			}
-			*/
-			// THE SPEED SLIDER
-			GUI.skin = customSkin;
-			GUI.Label(new Rect(30, 118, 250, 30), "Line Length: " + d.Distance.ToString("0.00"));
-			d.Speed = GUI.HorizontalSlider(new Rect(10, 145, 220, 30), d.Speed, 0.0f, 5.0f);
-			GUI.Label(new Rect(70, 142, 100, 30), "Speed");
-			GUI.Label(new Rect(240, 142, 70, 30), d.Speed.ToString("0.00"));
-			// THE WAIT TIME SLIDER
-			d.Speed = GUI.HorizontalSlider(new Rect(10, 170, 220, 30), d.WaitTime, 0.0f, 20.0f);
-			GUI.Label(new Rect(70, 170, 100, 30), "Wait Time");
-			GUI.Label(new Rect(240, 170, 70, 30), d.WaitTime.ToString("0.00") + "s");
-			GUI.skin.button.fontSize = 18;
-			GUI.Label(new Rect(30, 195, 250, 28), "# data points: " + d.Points.Count.ToString());       
-		}
-	}
+        // THE SPEED SLIDER
+        GUI.skin = customSkin;
+        GUI.Label(new Rect(30, 118, 250, 30), "Line Length: " + d.Distance.ToString("0.00"));
+        GUI.Label(new Rect(70, 142, 100, 30), "Speed");
+        GUI.Label(new Rect(240, 142, 70, 30), d.Speed.ToString("0.00"));
+        d.Speed = GUI.HorizontalSlider(new Rect(10, 145, 220, 30), d.Speed, 0.1f, 5.0f);
+        
+        // THE WAIT TIME SLIDER
+        GUI.Label(new Rect(70, 170, 100, 30), "Wait Time");
+        GUI.Label(new Rect(240, 170, 70, 30), d.WaitTime.ToString("0.00") + "s");
+        d.Speed = GUI.HorizontalSlider(new Rect(10, 170, 220, 30), d.WaitTime, 0.0f, 20.0f);
+        
+        GUI.skin.button.fontSize = 18;
+        GUI.Label(new Rect(30, 195, 250, 28), "# data points: " + d.Points.Count.ToString());
+    }
 	#endregion
 	void MovingAlong()
 	{
