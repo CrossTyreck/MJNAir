@@ -59,7 +59,7 @@ public class Directive
     // Use this for initialization
     void Start()
     {
-
+        this.Line = this.Pyramid.GetComponent<LineRenderer>();
         InitVariables();
     }
 
@@ -94,8 +94,6 @@ public class Directive
 			index = 0;
 		}
     }
-    
-
     /// <summary>
     /// Creates a directive at the given points, with a look and distance value
     /// </summary>
@@ -107,7 +105,7 @@ public class Directive
         this.Position = position;
         this.Pyramid = pyramid;
         this.Pyramid.transform.position = position;
-		this.Line = this.Pyramid.GetComponent<LineRenderer> ();
+        this.Line = this.Pyramid.GetComponent<LineRenderer>();
 		VertexCount++;
 		Line.SetVertexCount(VertexCount);
 		Line.SetPosition (VertexCount - 1, position);
@@ -119,6 +117,7 @@ public class Directive
         this.Points[0] = position;
         this.Pyramid.transform.position = position;
 		Line.SetPosition (0, Position);
+        Line.enabled = true;
 		if (id > 0)
 			dirs[id - 1].Line.SetPosition (dirs[id - 1].VertexCount - 1, Position);
         FindDistanceToNextDirective();
@@ -129,7 +128,7 @@ public class Directive
 		Distance += Vector3.Distance(
 			Points[Points.Count - 2],
 			Points[Points.Count - 1]);
-		VertexCount++;
+		VertexCount++;      
 		Line.SetVertexCount(VertexCount);
 		Line.SetPosition(VertexCount - 1, p);
 	}

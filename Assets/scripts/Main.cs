@@ -123,8 +123,107 @@ public class Main : MonoBehaviour
         }
 
         CameraChecking();
+        if(Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer) 
+            MouseCameraControls();
+        else if (Application.platform == RuntimePlatform.Android)
+            TouchCameraControls();
+        
     }
+    void MouseCameraControls()
+    {
+        Vector3 dMouse = Input.mousePosition - pMouse;
+        switch (camtype)
+        {
+            case CameraType.PerspectiveEditing:
+                Vector3 terrainCenter = gameGroundLevel.transform.position + new Vector3(gameGroundLevel.transform.localScale.x, 6, gameGroundLevel.transform.localScale.z) / 2;
+                if (Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 5)
+                    PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel");
+                else if (Input.GetAxis("Mouse ScrollWheel") < 0)
+                    PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * Input.GetAxis("Mouse ScrollWheel");
+                if (Input.GetMouseButton(2))
+                {
+                    Vector3 campos = PerspectiveEditingCam.transform.position;
+                    Vector3 v = campos - terrainCenter;
+                    float x = v.x;
+                    float y = v.z;
+                    float theta = -(Input.mousePosition.x - pMouse.x) * 0.003f;
+                    float xp = x * Mathf.Cos(theta) - y * Mathf.Sin(theta);
+                    float yp = x * Mathf.Sin(theta) + y * Mathf.Cos(theta);
+                    PerspectiveEditingCam.transform.position = new Vector3(terrainCenter.x + xp, Mathf.Clamp(campos.y + (Input.mousePosition.y - pMouse.y) * 0.01f, terrainCenter.y - 2f, terrainCenter.y + 15f), terrainCenter.z + yp);
+                    PerspectiveEditingCam.transform.LookAt(terrainCenter);
+                }
+                break;
+            case CameraType.TopDownEditing:
+                if (Input.GetMouseButton(2))
+                    TopDownEditingCam.transform.position -= (new Vector3(dMouse.x, 0, dMouse.y) * TopDownEditingCam.orthographicSize) * 0.003f;
+                float scroll = Input.GetAxis("Mouse ScrollWheel");
+                if (scroll > 0)
+                {
+                    if (TopDownEditingCam.orthographicSize > 5)
+                        TopDownEditingCam.orthographicSize -= scroll;
+                }
+                if (scroll < 0)
+                   TopDownEditingCam.orthographicSize -= scroll * 3.0f;
+                break;
+        }
+        pMouse = Input.mousePosition;
+    }
+    float lastPinchDistance = 0.0f;
+    void TouchCameraControls()
+    {
+        switch (camtype)
+        {
+            case CameraType.PerspectiveEditing:
+                Vector3 terrainCenter = gameGroundLevel.transform.position + new Vector3(gameGroundLevel.transform.localScale.x, 6, gameGroundLevel.transform.localScale.z) / 2;
+                // if the player has two fingers on the screen and they are simply moving around, scroll the camera
+                // if the player starts to move their fingers apart or together, zoom the camera
+                if (Input.touchCount == 2)
+                {
+                    float pinchDistance = Vector2.Distance(Input.GetTouch(0).position, Input.GetTouch(1).position);
+                    if (pinchDistance > 50f)
+                    { // THIS NUMBER IS UNTESTED
+                        float deltaPinchDistance = lastPinchDistance - pinchDistance;
+                        if (Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 5)
+                            PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * deltaPinchDistance;
+                        else if (deltaPinchDistance > 0)
+                            PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * deltaPinchDistance;
+                    }
+                    else
+                    {
+                        Vector3 campos = PerspectiveEditingCam.transform.position;
+                        Vector3 v = campos - terrainCenter;
+                        float x = v.x;
+                        float y = v.z;
+                        float theta = -Input.GetTouch(0).deltaPosition.x * 0.003f;
+                        float xp = x * Mathf.Cos(theta) - y * Mathf.Sin(theta);
+                        float yp = x * Mathf.Sin(theta) + y * Mathf.Cos(theta);
+                        PerspectiveEditingCam.transform.position = new Vector3(terrainCenter.x + xp, Mathf.Clamp(campos.y + Input.GetTouch(0).deltaPosition.y * 0.01f, terrainCenter.y - 2f, terrainCenter.y + 15f), terrainCenter.z + yp);
+                        PerspectiveEditingCam.transform.LookAt(terrainCenter);
+                    }
+                    lastPinchDistance = pinchDistance;
+                }
+                break;
+            case CameraType.TopDownEditing:
+                if (Input.touchCount == 2)
+                {
+                    float pinchDistance = Vector2.Distance(Input.GetTouch(0).position, Input.GetTouch(1).position);
+                    TopDownEditingCam.transform.position -= (new Vector3(Input.GetTouch(0).deltaPosition.x, 0, Input.GetTouch(0).deltaPosition.y) * TopDownEditingCam.orthographicSize) * 0.003f;
+                    float deltaPinchDistance = lastPinchDistance - pinchDistance;
+                    if (deltaPinchDistance > 0)
+                    {
+                        if (TopDownEditingCam.orthographicSize > 5)
+                            TopDownEditingCam.orthographicSize -= deltaPinchDistance;
+                    }
+                    if (deltaPinchDistance < 0)
+                        TopDownEditingCam.orthographicSize -= deltaPinchDistance * 3.0f;
 
+                    lastPinchDistance = pinchDistance;
+                }
+                float scroll = Input.GetAxis("Mouse ScrollWheel");
+                break;
+        }
+        
+    }
     void OnGUI()
     {
         MouseControls();
@@ -344,22 +443,13 @@ public class Main : MonoBehaviour
     }
     void MouseControls()
     {
-        Vector3 dMouse = Input.mousePosition - pMouse;
+        //Vector3 dMouse = Input.mousePosition - pMouse;
         switch (camtype)
         {
             case CameraType.TopDownEditing:
                 QuadCopter1.LineDrawingControl(TopDownEditingCam);
                 //TopDownEditMode(TopDownEditingCam);
-                //if (Input.GetMouseButton(2))
-                //    TopDownEditingCam.transform.position -= (new Vector3(dMouse.x, 0, dMouse.y) * TopDownEditingCam.orthographicSize) * 0.003f;
-                //float scroll = Input.GetAxis("Mouse ScrollWheel");
-                //if (scroll > 0)
-                //{
-                //    if (TopDownEditingCam.orthographicSize > 5)
-                //        TopDownEditingCam.orthographicSize -= scroll;
-               // }
-               // if (scroll < 0)
-                //    TopDownEditingCam.orthographicSize -= scroll;
+                
                 break;
             case CameraType.PerspectiveEditing:
                 //if (selDirective > -1)
@@ -374,8 +464,9 @@ public class Main : MonoBehaviour
                 QuadCopter1.transform.Rotate(Input.mousePosition, (0.5f * Time.deltaTime) * Mathf.Rad2Deg, relativeTo);
                 break;
         }
-        pMouse = Input.mousePosition;
+        //pMouse = Input.mousePosition;
     }
+    /*
     void PerspectiveCameraControls(Vector3 dMouse)
     {
         Vector3 terrainCenter = gameGroundLevel.transform.position + new Vector3(gameGroundLevel.transform.localScale.x, 6, gameGroundLevel.transform.localScale.z) / 2;
@@ -396,6 +487,7 @@ public class Main : MonoBehaviour
             PerspectiveEditingCam.transform.LookAt(terrainCenter);
         }
     }
+    
     void EditDirective(Vector3 dMouse)
     {
         Directive d = directives[selDirective];
@@ -471,6 +563,7 @@ public class Main : MonoBehaviour
             GUI.Label(new Rect(30, 195, 250, 28), "# data points: " + d.Points.Count.ToString());       
         }
     }
+     * */
     bool movingLook = false;
     void CameraChecking()
     {
@@ -519,10 +612,6 @@ public class Main : MonoBehaviour
     #endregion
 
     #region Tools
-    void AlignAllDirectives()
-    {
-        for (int i = 0; i < directives.Count; i++)
-            directives[i].Align(directives, i);
-    }
+
     #endregion
 }
