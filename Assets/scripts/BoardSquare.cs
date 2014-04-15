@@ -71,6 +71,18 @@ public class BoardSquare
         Traversed = true;
     }
 
+    /// <summary>
+    /// Return the position of the board square. 
+    /// </summary>
+    /// <returns></returns>
+    public string ToString()
+    {
+        if (Position != null)
+            return Position.ToString();
+
+        return "This Board Square is missing.";
+
+    }
 
 
 }

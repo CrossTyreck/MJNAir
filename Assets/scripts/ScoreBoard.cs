@@ -86,18 +86,19 @@ public class ScoreBoard
     /// Output all board square in the Gameboard
     /// </summary>
     /// <returns></returns>
-    public string toString()
+    public string ToString()
     {
+        string squaresPos = "";
+
         if (GameBoard.Length > 0)
         {
             foreach (BoardSquare square in GameBoard)
             {
-                return square.ToString() + "\n";
+                squaresPos += square.ToString() + "\n";
             }
+            return squaresPos.ToString();
         }
 
         return GameBoard.Length.ToString();
-
-
     }
 }

@@ -17,6 +17,8 @@ public class Main : MonoBehaviour
     ScoringSystem score;
     ScoreBoard gameGrid;
     public GameObject gameGroundLevel;
+    //Used to display game Grid for testing
+    public GameObject boardSquare; 
     public Camera PerspectiveEditingCam;
     public Camera TopDownEditingCam;
     public Camera CopterCam;
@@ -43,10 +45,22 @@ public class Main : MonoBehaviour
     public GUISkin GUISkin;
     #endregion
 
+   
+
     void Start()
     {
         gameGrid = new ScoreBoard(gameGroundLevel.transform);
-        
+        int x = (int)(gameGroundLevel.transform.localScale.x * 10);
+        int z = (int)(gameGroundLevel.transform.localScale.z * 10);
+        Vector3 offset = new Vector3(gameGroundLevel.transform.position.x - x * 0.5f, 0, gameGroundLevel.transform.position.z - z * 0.5f);
+       for (int i = 0; i < x; i++)
+        {
+            for (int j = 0; j < z; j++)
+            {
+                Instantiate(boardSquare, offset + new Vector3(i, 5, j), Quaternion.identity);
+            }
+        }
+
         startButton.enabled = false;
         startButton.transform.position = new Vector3(0.5f, 0.5f, 1);
         PerspectiveEditingCam.enabled = false;
@@ -169,6 +183,7 @@ public class Main : MonoBehaviour
     void OnGUI()
     {
         MouseControls();
+        Debug.Log(gameGrid.ToString());
     }
 
     #region User Controls
