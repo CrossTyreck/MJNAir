@@ -14,6 +14,10 @@ public class PlayerController : MonoBehaviour {
 	/// The game ground level.
 	/// </summary>
 	public GameObject gameGroundLevel;
+    /// <summary>
+    /// the arrow used for the directive
+    /// </summary>
+    public GameObject Arrow;
 	/// <summary>
 	/// The particle system designated for use with this code, will draw particles along the directive line.
 	/// </summary>
@@ -43,10 +47,11 @@ public class PlayerController : MonoBehaviour {
 	int currentDirective;
 	int currentPathPosition;
 	Vector2 pTouchPosition;
+    Vector3 pMouse;
 
-	float flashtimer;
-	string message;
-	GUISkin customSkin;
+	public float flashtimer;
+	public string message;
+	public GUISkin customSkin;
 
 	void Start () 
 	{
@@ -58,7 +63,8 @@ public class PlayerController : MonoBehaviour {
 		currentDirective = 0;
 		currentPathPosition = 0;
 		pTouchPosition = Vector3.zero;
-		customSkin = Resources.Load<GUISkin> ("CustomGUISkin");
+        pMouse = Vector3.zero;
+        directives.Add(new Directive(PlayerCopter.transform.position, Arrow));
 	}
 
 	void Update () 
@@ -85,12 +91,13 @@ public class PlayerController : MonoBehaviour {
 	}
 	void OnGUI() 
 	{
+        GUI.skin = customSkin;
 		// basic player instructions go here
 		if (flashtimer > 0.0f) // for messaging the player involving action or inaction, set flashtimer > 0 and message to desired message
 		{
 			GUI.Label (new Rect(Screen.width * 0.3f, Screen.height * 0.3f, Screen.width * 0.4f, Screen.height * 0.4f), message);
 		}
-		if(directives[0].Points.Count < 0.0f)
+		if(directives[0].Points.Count < 2)
 			GUI.Label (new Rect(Screen.width * 0.3f, Screen.height * 0.15f, Screen.width * 0.4f, Screen.height * 0.15f), 
 			           "Draw a path for your copter to follow by moving your finger across the screen");
 		else if(directives.Count < 2)
@@ -105,44 +112,80 @@ public class PlayerController : MonoBehaviour {
 	#region Path Drawing and Editing
 	public void LineDrawingControl(Camera cam) 
 	{
-		if (cam.isOrthoGraphic) 
-		{
-			TopDownEditMode(cam);
-		} 
-		else 
-		{
-			PerspectiveCameraControls(cam);
-		}
-		pTouchPosition = Input.GetTouch (0).position;
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            if (Input.touchCount > 0)
+            {
+                if (cam.isOrthoGraphic)
+                    TopDownEditMode(cam);
+                else
+                    PerspectiveCameraControls(cam);
+                pTouchPosition = Input.GetTouch(0).position;
+            }
+        }
+        else if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
+        {
+            if (cam.isOrthoGraphic)
+                TopDownEditMode2(cam);
+            else
+                PerspectiveCameraControls2(cam);
+            pMouse = Input.mousePosition;
+        }
 	}
 	void TopDownEditMode(Camera cam)
 	{
-
-		if (Input.GetTouch(0).tapCount == 2)
-		{
-			if (directives[directives.Count - 1].Position != directives[currentDirective].Points[directives[currentDirective].Points.Count - 1])
-			{
-				directives.Add(new Directive(directives[currentDirective].Points[directives[currentDirective].Points.Count - 1], Instantiate(Resources.Load("prefabs/Arrow")) as GameObject)); 
-				currentDirective++;
-			}
-		}
-		else
-		{
-			if (Input.GetTouch(0).phase == TouchPhase.Ended)
-			{
-				Ray ray = cam.ScreenPointToRay(Input.GetTouch(0).position);
-				RaycastHit hit = new RaycastHit();
-				if (gameGroundLevel.collider.Raycast(ray, out hit, cam.farClipPlane))
-				{
-					Vector3 p = new Vector3(hit.point.x, hit.point.y + 6, hit.point.z);
-					float d = Vector3.Distance(directives[currentDirective].Points[directives[currentDirective].Points.Count - 1], p);
-					if (d > 0.01f)
-						directives[currentDirective].AddPoint(p);
-				}
-			}
-		}
-
+        
+            FlashMessage(Input.GetTouch(0).position.ToString(), 1.0f);
+            if (Input.GetTouch(0).tapCount == 2)
+            {
+                if (directives[directives.Count - 1].Position != directives[currentDirective].Points[directives[currentDirective].Points.Count - 1])
+                {
+                    directives.Add(new Directive(directives[currentDirective].Points[directives[currentDirective].Points.Count - 1], Instantiate(Resources.Load("prefabs/Arrow")) as GameObject));
+                    currentDirective++;
+                }
+            }
+            else
+            {
+                //if (Input.GetTouch(0).phase == TouchPhase.Moved)
+                //{
+                Ray ray = cam.ScreenPointToRay(Input.GetTouch(0).position);
+                RaycastHit hit = new RaycastHit();
+                if (gameGroundLevel.collider.Raycast(ray, out hit, cam.farClipPlane))
+                {
+                    Vector3 p = new Vector3(hit.point.x, hit.point.y + 6, hit.point.z);
+                    float d = Vector3.Distance(directives[currentDirective].Points[directives[currentDirective].Points.Count - 1], p);
+                    if (d > 0.01f)
+                        directives[currentDirective].AddPoint(p);
+                }
+                //}
+            }
 	}
+    void TopDownEditMode2(Camera cam)
+    {
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetMouseButtonDown(0))
+        {
+            if (directives[directives.Count - 1].Position != directives[currentDirective].Points[directives[currentDirective].Points.Count - 1])
+            {
+                directives.Add(new Directive(directives[currentDirective].Points[directives[currentDirective].Points.Count - 1], Instantiate(Arrow) as GameObject));
+                currentDirective++;
+            }
+        }
+        else
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit = new RaycastHit();
+                if (gameGroundLevel.collider.Raycast(ray, out hit, cam.farClipPlane))
+                {
+                    Vector3 p = new Vector3(hit.point.x, hit.point.y + 6, hit.point.z);
+                    float d = Vector3.Distance(directives[currentDirective].Points[directives[currentDirective].Points.Count - 1], p);
+                    if (d > 0.01f)
+                        directives[currentDirective].AddPoint(p);
+                }
+            }
+        }
+    }
 	int getIndexOnTouch(Camera cam)
 	{
 		if (directives.Count > 0)
@@ -158,9 +201,25 @@ public class PlayerController : MonoBehaviour {
 		}
 		return -1;
 	}
+    int getIndexOnClick(Camera cam)
+    {
+        if (directives.Count > 0)
+        {
+            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, cam.farClipPlane))
+            {
+                for (int i = 0; i < directives.Count; i++)
+                    if (hit.collider.gameObject.Equals(directives[i].Pyramid))
+                        return i;
+            }
+        }
+        return -1;
+    }
 	float lastPinchDistance = 0.0f;
 	void SelectDirectiveAndDrag(Camera cam)
 	{
+        FlashMessage("dragging able", 1.0f);
 		if (Input.GetTouch(0).phase == TouchPhase.Began)
 		{
 			if (selDirective == -1)
@@ -193,6 +252,43 @@ public class PlayerController : MonoBehaviour {
 			}
 		}
 	}
+    void SelectDirectiveAndDrag2(Camera cam)
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (selDirective == -1)
+            {
+                int t = getIndexOnClick(cam);
+
+                selDirective = t;
+                draggedDirective = t;
+                if (t > -1)
+                    directives[t].Highlight = true;
+            }
+        }
+        if (draggedDirective > -1)
+        {
+            Vector3 dif = (Input.mousePosition - pMouse);
+            Ray r = cam.ScreenPointToRay(Input.mousePosition);
+            float t = (directives[draggedDirective].Position.y - r.origin.y) / r.direction.y;
+            int draggedLineIndex = 0;
+            for (int i = 0; i < draggedDirective; i++)
+                draggedLineIndex += directives[i].Points.Count - 1;
+
+            if (Input.GetKey(KeyCode.LeftShift))
+                directives[draggedDirective].Set(r.GetPoint(t), draggedDirective, directives);
+            else
+                directives[draggedDirective].Set(directives[draggedDirective].Position + new Vector3(0, dif.y * 0.03f, 0), draggedDirective, directives);
+
+            if (Input.GetMouseButtonUp(0))
+                draggedDirective = -1;
+        }
+    }
+    void FlashMessage(string message, float timer)
+    {
+        this.message = message;
+        this.flashtimer = timer;
+    }
 	void PerspectiveCameraControls(Camera cam)
 	{
 		Vector3 terrainCenter = gameGroundLevel.transform.position + new Vector3(gameGroundLevel.transform.localScale.x, 6, gameGroundLevel.transform.localScale.z) / 2;
@@ -222,6 +318,26 @@ public class PlayerController : MonoBehaviour {
 			lastPinchDistance = pinchDistance;
 		}
 	}
+    void PerspectiveCameraControls2(Camera cam)
+	{
+		Vector3 terrainCenter = gameGroundLevel.transform.position + new Vector3(gameGroundLevel.transform.localScale.x, 6, gameGroundLevel.transform.localScale.z) / 2;
+        if (Vector3.Distance(cam.transform.position, terrainCenter) > 5)
+            cam.transform.position += cam.transform.forward * Input.GetAxis("Mouse ScrollWheel");
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0)
+            cam.transform.position += cam.transform.forward * Input.GetAxis("Mouse ScrollWheel");
+        if (Input.GetMouseButton(2))
+        {
+            Vector3 campos = cam.transform.position;
+            Vector3 v = campos - terrainCenter;
+            float x = v.x;
+            float y = v.z;
+            float theta = -(Input.mousePosition.x - pMouse.x) * 0.003f;
+            float xp = x * Mathf.Cos(theta) - y * Mathf.Sin(theta);
+            float yp = x * Mathf.Sin(theta) + y * Mathf.Cos(theta);
+            cam.transform.position = new Vector3(terrainCenter.x + xp, Mathf.Clamp(campos.y + (Input.mousePosition.y - pMouse.y) * 0.01f, terrainCenter.y - 2f, terrainCenter.y + 15f), terrainCenter.z + yp);
+            cam.transform.LookAt(terrainCenter);
+        }
+	}
 	void EditDirective(Camera cam)
 	{
 		Directive d = directives[selDirective];
@@ -232,7 +348,20 @@ public class PlayerController : MonoBehaviour {
 		if (Input.GetTouch(0).phase == TouchPhase.Began)
 			if (!guiRect.Contains(new Vector2(Input.GetTouch(0).position.x, Screen.height - Input.GetTouch(0).position.y)))
 		{
-
+			selDirective = -1;
+			d.Highlight = false;
+		}
+	}
+    void EditDirective2(Camera cam)
+	{
+		Directive d = directives[selDirective];
+		Vector3 point = d.Position;
+		d.Pyramid.renderer.material.color = Color.white;
+		Rect guiRect = new Rect(cam.WorldToScreenPoint(point).x, Screen.height - cam.WorldToScreenPoint(point).y, 320, 220);
+		GUI.Window(0, guiRect, DirectiveData2, "Directive Data");
+		if (Input.GetTouch(0).phase == TouchPhase.Began)
+			if (!guiRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
+		{
 			selDirective = -1;
 			d.Highlight = false;
 		}
@@ -262,6 +391,61 @@ public class PlayerController : MonoBehaviour {
 			}
 			Vector2 deltaTouchPosition = Input.GetTouch(0).position - pTouchPosition;
 			Rect lookRect = new Rect(5, 50, 310, 20);
+
+			/*
+			if (movingLook)
+			{
+				Vector3 lv = Quaternion.Euler(dMouse.x, dMouse.y, 0) * d.LookVector;
+				print(lv);
+				d.LookVector = lv;
+				if (!Input.GetMouseButton(0))
+					movingLook = false;
+			}
+			if (Input.GetMouseButton(0))
+				movingLook = true;
+			if (GUI.Button(lookRect, "Look X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0")))
+			{
+				movingLook = true;
+			}
+			*/
+			// THE SPEED SLIDER
+			GUI.skin = customSkin;
+			GUI.Label(new Rect(30, 118, 250, 30), "Line Length: " + d.Distance.ToString("0.00"));
+			d.Speed = GUI.HorizontalSlider(new Rect(10, 145, 220, 30), d.Speed, 0.0f, 5.0f);
+			GUI.Label(new Rect(70, 142, 100, 30), "Speed");
+			GUI.Label(new Rect(240, 142, 70, 30), d.Speed.ToString("0.00"));
+			// THE WAIT TIME SLIDER
+			d.Speed = GUI.HorizontalSlider(new Rect(10, 170, 220, 30), d.WaitTime, 0.0f, 20.0f);
+			GUI.Label(new Rect(70, 170, 100, 30), "Wait Time");
+			GUI.Label(new Rect(240, 170, 70, 30), d.WaitTime.ToString("0.00") + "s");
+			GUI.skin.button.fontSize = 18;
+			GUI.Label(new Rect(30, 195, 250, 28), "# data points: " + d.Points.Count.ToString());       
+		}
+	}
+    void DirectiveData2(int id)
+	{
+		if (selDirective > -1)
+		{
+			Directive d = directives[selDirective];
+			
+			if (GUI.Button(new Rect(5, 25, 310, 20), "Pos X:" + d.Position.x.ToString("0.0") + " Y:" + d.Position.y.ToString("0.0") + " Z:" + d.Position.z.ToString("0.0")))
+			{
+				draggedDirective = selDirective;
+			}
+			else if (GUI.Button(new Rect(5, 85, 200, 20), "Arc Type: " + d.Alignment.ToString()))
+			{
+				d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
+			}
+			else if (GUI.Button(new Rect(225, 75, 90, 20), "CHANGE"))
+			{
+				d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
+			}
+			else if (GUI.Button(new Rect(225, 95, 90, 20), "ALIGN"))
+			{
+				AlignAllDirectives();
+			}
+			//Vector2 deltaTouchPosition = Input.mousePosition - pMouse;
+			//Rect lookRect = new Rect(5, 50, 310, 20);
 
 			/*
 			if (movingLook)

@@ -74,7 +74,7 @@ public class Main : MonoBehaviour
         score.InitializeScore();
         customGUIStyle = new GUIStyle();
         customGUIStyle.fontSize = 14;
-        QuadCopter1.gameObject.SetActive(false);
+        //QuadCopter1.gameObject.SetActive(false);
         directives.Add(new Directive(QuadCopter1.transform.position, Instantiate(Arrow) as GameObject));
         arrowPS.Play();
     }
@@ -127,59 +127,59 @@ public class Main : MonoBehaviour
 
     void OnGUI()
     {
-        Rect btnUpRect = new Rect(Screen.width * 0.9f, 65, 75, 50);
-        GUI.skin = UISkin;
-
-        if (TopDownEditingCam.enabled && !CopterCam.enabled)
-        {
-            GUI.BeginGroup(new Rect(Screen.width * 0.025f, Screen.height * 0.042f, Screen.width * 0.2f, Screen.height * 0.9f));
-
-            GUI.Box(new Rect(0, 0, 150, 740), topDownButtonsBG, GUI.skin.GetStyle("Label"));
-            for (int i = 0; i < gameGrid.GameBoard.Length - 1; i++)
-            {
-                for (int j = 0; j < gameGrid.GameBoard.Length - 1; j++) { }
-                // GUI.Label(new Rect(Screen.width * 0.01f, Screen.height * 0.1f + (j * 60), 250, 200), "Squares: " + gameGrid.GameBoard[i, j].Position);
-            }
-
-            sliderValue = GUI.VerticalSlider(new Rect(Screen.width * 0.025f, Screen.height * 0.6f, 75, 250), sliderValue, 10.0f, 0.0f, speedSlider, speedButton);
-
-            if (moving)
-            {
-                if (GUI.Button(new Rect(-(Screen.width * 0.078f), 0, 350, 100), stopButton, GUI.skin.GetStyle("Label")))
-                {
-                    moving = false;
-                }
-            }
-            else
-            {
-                if (GUI.Button(new Rect(-(Screen.width * 0.078f), 0, 350, 100), goButton, GUI.skin.GetStyle("Label")))
-                {
-                    QuadCopter1.moving = true;
-                }
-            }
-            GUI.EndGroup();
-
-            if (GUI.Button(new Rect(Screen.width * 0.9f, Screen.height * 0.05f, 75, 50), "EXIT"))
-            {
-                Application.Quit();
-            }
-        }
-        if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
-        {
-            drawingPath = false;
-            moving = true;
-            startButton.enabled = false;
-            startButton.transform.position = new Vector3(9999, 9999, -100);
-            QuadCopter1.transform.position = directives[0].Points[0];
-            curDirective = 0;
-            pathPosCount = 0;
-            target = directives[curDirective].Points[pathPosCount];
-            QuadCopter1.gameObject.SetActive(true);
-        }
-
-
         MouseControls();
         KeyboardControls();
+
+        //Rect btnUpRect = new Rect(Screen.width * 0.9f, 65, 75, 50);
+        //GUI.skin = UISkin;
+
+        //if (TopDownEditingCam.enabled && !CopterCam.enabled)
+        //{
+        //    GUI.BeginGroup(new Rect(Screen.width * 0.025f, Screen.height * 0.042f, Screen.width * 0.2f, Screen.height * 0.9f));
+
+        //    GUI.Box(new Rect(0, 0, 150, 740), topDownButtonsBG, GUI.skin.GetStyle("Label"));
+        //    for (int i = 0; i < gameGrid.GameBoard.Length - 1; i++)
+        //    {
+        //        for (int j = 0; j < gameGrid.GameBoard.Length - 1; j++) { }
+        //        // GUI.Label(new Rect(Screen.width * 0.01f, Screen.height * 0.1f + (j * 60), 250, 200), "Squares: " + gameGrid.GameBoard[i, j].Position);
+        //    }
+
+        //    sliderValue = GUI.VerticalSlider(new Rect(Screen.width * 0.025f, Screen.height * 0.6f, 75, 250), sliderValue, 10.0f, 0.0f, speedSlider, speedButton);
+
+        //    if (moving)
+        //    {
+        //        if (GUI.Button(new Rect(-(Screen.width * 0.078f), 0, 350, 100), stopButton, GUI.skin.GetStyle("Label")))
+        //        {
+        //            moving = false;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (GUI.Button(new Rect(-(Screen.width * 0.078f), 0, 350, 100), goButton, GUI.skin.GetStyle("Label")))
+        //        {
+        //            QuadCopter1.moving = true;
+        //        }
+        //    }
+        //    GUI.EndGroup();
+
+        //    if (GUI.Button(new Rect(Screen.width * 0.9f, Screen.height * 0.05f, 75, 50), "EXIT"))
+        //    {
+        //        Application.Quit();
+        //    }
+        //}
+        //if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
+        //{
+        //    drawingPath = false;
+        //    moving = true;
+        //    startButton.enabled = false;
+        //    startButton.transform.position = new Vector3(9999, 9999, -100);
+        //    QuadCopter1.transform.position = directives[0].Points[0];
+        //    curDirective = 0;
+        //    pathPosCount = 0;
+        //    target = directives[curDirective].Points[pathPosCount];
+        //    QuadCopter1.gameObject.SetActive(true);
+        //}
+
     }
 
     #region CopterMovement
