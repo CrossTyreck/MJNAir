@@ -86,7 +86,7 @@ public class ScoreBoard
     /// Output all board square in the Gameboard
     /// </summary>
     /// <returns></returns>
-    public string ToString()
+    public override string ToString()
     {
         string squaresPos = "";
 
@@ -101,4 +101,7 @@ public class ScoreBoard
 
         return GameBoard.Length.ToString();
     }
+
+   
+
 }

@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour {
 	/// <summary>
 	/// The current speed of the copter.
 	/// </summary>
-	float speed;
+	public float speed;
 	/// <summary>
 	/// The amount of time until the copter begins moving again, in seconds
 	/// </summary>
@@ -46,6 +46,7 @@ public class PlayerController : MonoBehaviour {
 	int selDirective;
     int currentDirective;
 
+    public bool Drawing;
 	int currentPathPosition;
 	Vector2 pTouchPosition;
     Vector3 pMouse;
@@ -62,7 +63,7 @@ public class PlayerController : MonoBehaviour {
 		draggedDirective = -1;
 		selDirective = -1;
 		FlashTimer = 0.0f;
-        speed = 1.0f;
+        speed = 0f;
 		Message = "";
 		
 		currentPathPosition = 0;
@@ -141,6 +142,7 @@ public class PlayerController : MonoBehaviour {
 	{
 
 	}
+
 	#region Path Drawing and Editing
 	public void LineDrawingControl(Camera cam) 
 	{
@@ -182,6 +184,7 @@ public class PlayerController : MonoBehaviour {
         }
         else if (Input.touchCount == 1)
         {
+            Drawing = true;
             Ray ray = cam.ScreenPointToRay(Input.GetTouch(0).position);
             RaycastHit hit = new RaycastHit();
             if (gameGroundLevel.collider.Raycast(ray, out hit, cam.farClipPlane))
@@ -191,6 +194,10 @@ public class PlayerController : MonoBehaviour {
                 if (d > 0.01f)
                     directives[currentDirective].AddPoint(p);
             }
+        }
+        else
+        {
+            Drawing = false;
         }
     }
     void TopDownMouseEdit(Camera cam)

@@ -18,7 +18,7 @@ public class Main : MonoBehaviour
     ScoreBoard gameGrid;
     public GameObject gameGroundLevel;
     //Used to display game Grid for testing
-    public GameObject boardSquare; 
+    public GameObject boardSquare;
     public Camera PerspectiveEditingCam;
     public Camera TopDownEditingCam;
     public Camera CopterCam;
@@ -43,23 +43,18 @@ public class Main : MonoBehaviour
     public Transform gameBoard;
     public GameObject goPlanePosition;
     public GUISkin GUISkin;
-    #endregion
+    int x;
+    int z;
+    Vector3 offset;
 
-   
+    #endregion
 
     void Start()
     {
         gameGrid = new ScoreBoard(gameGroundLevel.transform);
-        int x = (int)(gameGroundLevel.transform.localScale.x * 10);
-        int z = (int)(gameGroundLevel.transform.localScale.z * 10);
-        Vector3 offset = new Vector3(gameGroundLevel.transform.position.x - x * 0.5f, 0, gameGroundLevel.transform.position.z - z * 0.5f);
-       for (int i = 0; i < x; i++)
-        {
-            for (int j = 0; j < z; j++)
-            {
-                Instantiate(boardSquare, offset + new Vector3(i, 5, j), Quaternion.identity);
-            }
-        }
+        x = (int)(gameGroundLevel.transform.localScale.x * 10);
+        z = (int)(gameGroundLevel.transform.localScale.z * 10);
+        offset = new Vector3(gameGroundLevel.transform.position.x - x * 0.5f, 0, gameGroundLevel.transform.position.z - z * 0.5f);
 
         startButton.enabled = false;
         startButton.transform.position = new Vector3(0.5f, 0.5f, 1);
@@ -70,6 +65,13 @@ public class Main : MonoBehaviour
 
     void Update()
     {
+        QuadCopter1.speed = sliderValue;
+
+        if (!QuadCopter1.Drawing)
+            startButton.enabled = true;
+        else
+            startButton.enabled = false;
+
         if (endingCondition)
             score.FinalScore += gameGrid.GameBoardScore + gameGrid.GetScoreFromTraversed();
 
@@ -83,6 +85,40 @@ public class Main : MonoBehaviour
             CameraCheckingTouch();
             TouchCameraControls();
         }
+
+        for (int i = 0; i < x; i++)
+        {
+            for (int j = 0; j < z; j++)
+            {
+                if ((Vector3.Distance(QuadCopter1.transform.position, offset + new Vector3(i, 5, j)) <= 1))
+                {
+                    Instantiate(boardSquare, offset + new Vector3(i, 5, j), Quaternion.identity);
+                }
+            }
+        }
+    }
+
+    void OnGUI()
+    {
+        MouseControls();
+
+        if (TopDownEditingCam.enabled && !CopterCam.enabled)
+        {
+          if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
+          {
+              QuadCopter1.Drawing = false;
+              QuadCopter1.moving = true;
+              startButton.enabled = false;
+              startButton.transform.position = new Vector3(9999, 9999, -100);
+              //QuadCopter1.transform.position = directives[0].Points[0];
+              //curDirective = 0;
+              //pathPosCount = 0;
+              //target = directives[curDirective].Points[pathPosCount];
+              //QuadCopter1.gameObject.SetActive(true);
+          }
+        }
+
+        sliderValue = GUI.VerticalSlider(new Rect(Screen.width * 0.025f, Screen.height * 0.6f, 75, 250), sliderValue, 10.0f, 0.0f, speedSlider, speedButton);
     }
 
     void MouseCameraControls()
@@ -110,8 +146,12 @@ public class Main : MonoBehaviour
                 }
                 break;
             case CameraType.TopDownEditing:
+
                 if (Input.GetMouseButton(2))
+                {
                     TopDownEditingCam.transform.position -= (new Vector3(dMouse.x, 0, dMouse.y) * TopDownEditingCam.orthographicSize) * 0.003f;
+                }
+                
                 float scroll = Input.GetAxis("Mouse ScrollWheel");
                 if (scroll > 0)
                 {
@@ -119,12 +159,12 @@ public class Main : MonoBehaviour
                         TopDownEditingCam.orthographicSize -= scroll;
                 }
                 if (scroll < 0)
-                   TopDownEditingCam.orthographicSize -= scroll * 3.0f;
+                    TopDownEditingCam.orthographicSize -= scroll * 3.0f;
                 break;
         }
         pMouse = Input.mousePosition;
     }
-  
+
     void TouchCameraControls()
     {
         switch (camtype)
@@ -180,12 +220,6 @@ public class Main : MonoBehaviour
         }
     }
 
-    void OnGUI()
-    {
-        MouseControls();
-        Debug.Log(gameGrid.ToString());
-    }
-
     #region User Controls
     void MouseControls()
     {
@@ -199,12 +233,12 @@ public class Main : MonoBehaviour
                 QuadCopter1.LineDrawingControl(PerspectiveEditingCam);
                 break;
             case CameraType.Copter:
-                if(Input.GetMouseButton(0))
-                QuadCopter1.transform.Rotate(Input.mousePosition, (0.5f * Time.deltaTime) * Mathf.Rad2Deg, relativeTo);
+                if (Input.GetMouseButton(0))
+                    QuadCopter1.transform.Rotate(Input.mousePosition, (0.5f * Time.deltaTime) * Mathf.Rad2Deg, relativeTo);
                 break;
         }
     }
- 
+
     void CameraCheckingPC()
     {
         if (Input.GetKeyDown(KeyCode.RightArrow))

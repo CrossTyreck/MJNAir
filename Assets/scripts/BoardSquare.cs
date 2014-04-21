@@ -75,13 +75,22 @@ public class BoardSquare
     /// Return the position of the board square. 
     /// </summary>
     /// <returns></returns>
-    public string ToString()
+    public override string ToString()
     {
-        if (Position != null)
+        if (!Position.Equals(Vector2.zero))
             return Position.ToString();
 
         return "This Board Square is missing.";
 
+    }
+
+    /// <summary>
+    /// Determines the distance between two neighboring squares. 
+    /// </summary>
+    /// <returns></returns>
+    public float DistanceToNeighbor(BoardSquare other)
+    {
+        return Vector2.Distance(Position, other.Position);
     }
 
 
