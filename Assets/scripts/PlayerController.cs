@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// The current speed of the copter.
     /// </summary>
-    public float speed;
+    public float speed = 1.0f;
     /// <summary>
     /// The amount of time until the copter begins moving again, in seconds
     /// </summary>
@@ -39,12 +39,13 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// Determines if the copter is moving.
     /// </summary>
-    public bool moving;
+    public bool Moving = false;
     /// <summary>
     /// The next point along this copter's path.
     /// </summary>
     Vector3 target;
     int draggedDirective;
+    int pathFollowingDirective;
     int selDirective;
     int currentDirective;
 
@@ -65,15 +66,16 @@ public class PlayerController : MonoBehaviour
         draggedDirective = -1;
         selDirective = -1;
         FlashTimer = 0.0f;
-        speed = 0f;
+        speed = 1.0f;
         Message = "";
         Energy = 100;
         currentPathPosition = 0;
         pTouchPosition = Vector3.zero;
         pMouse = Vector3.zero;
-        print("Creating starting directive");
         directives.Add(new Directive(PlayerCopter.transform.position, Instantiate(Arrow) as GameObject));
         currentDirective = 0;
+        pathFollowingDirective = 0;
+        target = directives[pathFollowingDirective].Points[0];
     }
 
     void Update()
@@ -87,17 +89,18 @@ public class PlayerController : MonoBehaviour
             waitTime -= Time.deltaTime;
             if (waitTime < 0.0f)
             {
-                moving = true;
+                Moving = true;
                 waitTime = 0.0f;
             }
         }
 
         if (Energy == 0)
         {
-            moving = false;
+            Moving = false;
         }
-        if (moving)
+        if (Moving)
         {
+
             MovingAlong();
             //goPlanePosition.transform.position = gameGrid.CopterLocation(copter);
         }
@@ -368,7 +371,7 @@ public class PlayerController : MonoBehaviour
         // THE WAIT TIME SLIDER
         GUI.Label(new Rect(70, 170, 100, 30), "Wait Time");
         GUI.Label(new Rect(240, 170, 70, 30), d.WaitTime.ToString("0.00") + "s");
-        d.Speed = GUI.HorizontalSlider(new Rect(10, 170, 220, 30), d.WaitTime, 0.0f, 20.0f);
+        d.WaitTime = GUI.HorizontalSlider(new Rect(10, 170, 220, 30), d.WaitTime, 0.0f, 20.0f);
 
         GUI.skin.button.fontSize = 18;
         GUI.Label(new Rect(30, 195, 250, 28), "# data points: " + d.Points.Count.ToString());
@@ -376,18 +379,28 @@ public class PlayerController : MonoBehaviour
     #endregion
     void MovingAlong()
     {
-        if (Vector3.Distance(target, PlayerCopter.transform.position) > ((speed) * Time.deltaTime) && moving)
+        Vector3 direction = target - PlayerCopter.transform.position;
+        Vector3 next = direction.normalized * Time.deltaTime * speed * 20f;
+        float dmag = direction.magnitude;
+        if (next.magnitude > dmag)
         {
-            Vector3 direction = target = PlayerCopter.transform.position;
-            PlayerCopter.transform.position += direction * (speed) * Time.deltaTime;
+            PlayerCopter.transform.position = target;
+            if (currentPathPosition < directives[pathFollowingDirective].Points.Count)
+                target = directives[pathFollowingDirective].Points[currentPathPosition];
+            else
+                QueryDirective();
         }
         else
         {
-            currentPathPosition++;
-            if (currentPathPosition < directives[currentDirective].Points.Count)
-                target = directives[currentDirective].Points[currentPathPosition];
-            else
-                QueryDirective();
+            PlayerCopter.transform.position += next;
+            if (dmag < 0.2f)
+            {
+                currentPathPosition++;
+                if (currentPathPosition < directives[pathFollowingDirective].Points.Count)
+                    target = directives[pathFollowingDirective].Points[currentPathPosition];
+                else
+                    QueryDirective();
+            }
         }
     }
     void AlignAllDirectives()
@@ -397,21 +410,23 @@ public class PlayerController : MonoBehaviour
     }
     void QueryDirective()
     {
-        currentDirective++;
-        if (currentDirective < directives.Count)
+        pathFollowingDirective++;
+        if (pathFollowingDirective < directives.Count)
         {
             currentPathPosition = 0;
-            speed = directives[currentDirective].Speed;
-            PlayerCopter.transform.forward = directives[currentDirective].LookVector;
-            target = directives[currentDirective].Points[currentPathPosition];
-            waitTime = directives[currentDirective].WaitTime;
+            speed = directives[pathFollowingDirective].Speed;
+            PlayerCopter.transform.forward = directives[pathFollowingDirective].LookVector;
+            target = directives[pathFollowingDirective].Points[currentPathPosition];
+            waitTime = directives[pathFollowingDirective].WaitTime;
             if (waitTime > 0.0f)
-                moving = false;
+                Moving = false;
+
         }
         else
         {
-            moving = false;
-            currentDirective--;
+            
+            Moving = false;
+            pathFollowingDirective--;
         }
     }
     public static void FlashMessage(string m, float t)
@@ -452,7 +467,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    moving = false; //might not want this here
+                    Moving = false; //might not want this here
                     return 0;
                 }
             }

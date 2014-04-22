@@ -10,7 +10,6 @@ public class Main : MonoBehaviour
         PerspectiveEditing = 0,
         TopDownEditing = 1,
         Copter = 2,
-        DualCam = 3
     }
 
     public PlayerController QuadCopter1;
@@ -38,7 +37,7 @@ public class Main : MonoBehaviour
     float lastPinchDistance = 0.0f;
     public GUIStyle speedButton;
     public GUIStyle speedSlider;
-    public float sliderValue;
+    public float sliderValue = 1.0f;
     public bool endingCondition = false;
     public Transform gameBoard;
     public GameObject goPlanePosition;
@@ -71,7 +70,6 @@ float currentRotation = 0.0f;
 
     void Update()
     {
-
         foreach (GameObject obstacle in gameGrid.Obstacles)
         {
             if (obstacle.name == "Bee")
@@ -134,23 +132,27 @@ float currentRotation = 0.0f;
 
         GUI.Box(new Rect(0.5f, 0.5f, 150, 150), "Hello");
         GUI.Label(new Rect(Screen.width * 0.85f, Screen.height * 0.05f, 100, 50), score.CurrentScore.ToString());
-        if (TopDownEditingCam.enabled && !CopterCam.enabled)
+        switch (camtype)
         {
-            if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
-            {
-                QuadCopter1.Drawing = false;
-                QuadCopter1.moving = true;
-                startButton.enabled = false;
-                startButton.transform.position = new Vector3(9999, 9999, -100);
-                //QuadCopter1.transform.position = directives[0].Points[0];
-                //curDirective = 0;
-                //pathPosCount = 0;
-                //target = directives[curDirective].Points[pathPosCount];
-                //QuadCopter1.gameObject.SetActive(true);
-            }
-        }
-
-        sliderValue = GUI.VerticalSlider(new Rect(Screen.width * 0.025f, Screen.height * 0.6f, 75, 250), sliderValue, 10.0f, 0.0f, speedSlider, speedButton);
+            case CameraType.Copter:
+                sliderValue = GUI.VerticalSlider(new Rect(Screen.width * 0.025f, Screen.height * 0.6f, 75, 250), sliderValue, 10.0f, 0.0f, speedSlider, speedButton);
+                QuadCopter1.speed = sliderValue;
+                break;
+            case CameraType.TopDownEditing:
+                if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
+                {
+                    QuadCopter1.Drawing = false;
+                    QuadCopter1.Moving = true;
+                    startButton.enabled = false;
+                    startButton.transform.position = new Vector3(9999, 9999, -100);
+                    //QuadCopter1.transform.position = directives[0].Points[0];
+                    //curDirective = 0;
+                    //pathPosCount = 0;
+                    //target = directives[curDirective].Points[pathPosCount];
+                    //QuadCopter1.gameObject.SetActive(true);
+                }
+                break;
+        }        
     }
 
     void MouseCameraControls()
@@ -178,7 +180,6 @@ float currentRotation = 0.0f;
                 }
                 break;
             case CameraType.TopDownEditing:
-
                 if (Input.GetMouseButton(2))
                 {
                     TopDownEditingCam.transform.position -= (new Vector3(dMouse.x, 0, dMouse.y) * TopDownEditingCam.orthographicSize) * 0.003f;
@@ -275,7 +276,7 @@ float currentRotation = 0.0f;
     {
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            camtype = (CameraType)(((int)camtype + 1) % 4);
+            camtype = (CameraType)(((int)camtype + 1) % 3);
             CameraSwitch();
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow))
@@ -319,12 +320,6 @@ float currentRotation = 0.0f;
             case CameraType.Copter:
                 CopterCam.pixelRect = new Rect(0, 0, Screen.width, Screen.height);
                 TopDownEditingCam.enabled = false;
-                PerspectiveEditingCam.enabled = false;
-                CopterCam.enabled = true;
-                break;
-            case CameraType.DualCam:
-                TopDownEditingCam.pixelRect = new Rect(0, 0, Screen.width * 0.5f, Screen.height);
-                TopDownEditingCam.enabled = true;
                 PerspectiveEditingCam.enabled = false;
                 CopterCam.enabled = true;
                 break;

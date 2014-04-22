@@ -31,7 +31,7 @@ public class Directive
     /// <summary>
     /// The speed the copter will use while flying through this directives set of points
     /// </summary>
-    public float Speed { get; set; }
+    public float Speed;
 
     /// <summary>
     /// Distance from this directive to the next directive
@@ -52,7 +52,7 @@ public class Directive
     /// The time this directive commands the copter to wait, in seconds
     /// </summary>
     /// <value>The wait time.</value>
-    public float WaitTime { get; set; }
+    public float WaitTime = 0.0f;
 
 	public LineRenderer Line;
 	public int VertexCount;
