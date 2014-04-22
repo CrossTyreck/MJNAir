@@ -9,9 +9,7 @@ public class BottomRight : MonoBehaviour {
 	
 	void OnMouseEnter()
 	{
-		
 		parent.texture = change;
-		
 	}
 	
 	void OnMouseExit()

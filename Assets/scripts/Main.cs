@@ -46,13 +46,18 @@ public class Main : MonoBehaviour
     int x;
     int z;
     Vector3 offset;
-
+    int count;
+    Quaternion rotation;
+Vector3 radius;
+float currentRotation = 0.0f;
     #endregion
 
     void Start()
     {
+        radius = new Vector3(1, 0, 0);
+        currentRotation = 0.0f;
         gameGrid = new ScoreBoard(gameGroundLevel.transform, GameObject.FindGameObjectsWithTag("Obstacle"));
-
+        count = 0;
         x = (int)(gameGroundLevel.transform.localScale.x * 10);
         z = (int)(gameGroundLevel.transform.localScale.z * 10);
         offset = new Vector3(gameGroundLevel.transform.position.x - x * 0.5f, 0, gameGroundLevel.transform.position.z - z * 0.5f);
@@ -66,6 +71,20 @@ public class Main : MonoBehaviour
 
     void Update()
     {
+
+        foreach (GameObject obstacle in gameGrid.Obstacles)
+        {
+            if (obstacle.name == "Bee")
+            {
+                currentRotation += Input.GetAxis("Horizontal") * Time.deltaTime * 100;
+                rotation.eulerAngles = new Vector3(0, currentRotation, 0);
+                obstacle.transform.position = rotation * radius;
+                obstacle.transform.Rotate(rotation * radius);
+             
+            }
+            
+        }
+
         QuadCopter1.speed = sliderValue;
         QuadCopter1.GetComponent<EnergyBar>().barDisplay = QuadCopter1.Energy * 0.01f;
         if (!QuadCopter1.Drawing)
