@@ -17,36 +17,38 @@ public class BoardSquare
     /// <summary>
     /// How many points this square is worth.
     /// </summary>
-    public int Point { get; set; }
+    public int PointValue { get; set; }
 
     /// <summary>
     /// Did the copter traverse this square, used in scoring
     /// </summary>
     public bool Traversed { get; set; }
 
+    //How much energy consumption this obstacle uses, from 2- 4 times
+    public float EnergyConsumptionMultiplier { get; set; }
+
     /// <summary>
     /// How much energy this square consumes for the copter
     /// </summary>
-    public int EnergyUsed
+    public float EnergyUsed
     {
-		get{ return EnergyUsed; }
-        set
+        get
         {
-            if (!containsObstacle)
+            if (containsObstacle)
             {
-                EnergyUsed = 1;
+                EnergyUsed = EnergyConsumptionMultiplier;
+                return EnergyUsed;
             }
-            else
-            {
-                EnergyUsed = 1 * Obstacle.EnergyConsumptionMultiplier;
-            }
+
+            return -1;
         }
+        set {  }
     }
 
     /// <summary>
     /// The Obstacle attached to this Square
     /// </summary>
-    public Obstacle Obstacle { get; set; }
+    public GameObject Obstacle { get; set; }
 
     public bool containsObstacle = true;
 
@@ -56,12 +58,13 @@ public class BoardSquare
             containsObstacle = false;
         Traversed = false;
         Position = pos;
-        Point = point;
+        PointValue = point;
 
     }
 
     public BoardSquare()
     {
+       
         // TODO: Complete member initialization
     }
 
@@ -81,7 +84,6 @@ public class BoardSquare
             return Position.ToString();
 
         return "This Board Square is missing.";
-
     }
 
     /// <summary>

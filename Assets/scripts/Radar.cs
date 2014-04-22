@@ -18,7 +18,7 @@ public class Radar : MonoBehaviour {
 	  	this should work, drag the mouse around the dial to move it.
 
 	*/
-	public GameObject RadarPlane;
+    public GameObject RadarPlane;
     public GameObject RadarPointer;
     public Camera cam;
 	float pangle = 0.0f;

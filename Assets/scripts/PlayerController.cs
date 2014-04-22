@@ -1,115 +1,121 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 /// <summary>
 /// A MonoBehaviour handling the basic player interface with the game, to be used by up to four players.
 /// </summary>
-public class PlayerController : MonoBehaviour {
+public class PlayerController : MonoBehaviour
+{
 
-	/// <summary>
-	/// The game object representing the player. In this case, the Heliquad.
-	/// </summary>
+    /// <summary>
+    /// The game object representing the player. In this case, the Heliquad.
+    /// </summary>
     public GameObject PlayerCopter;
-	/// <summary>
-	/// The game ground level.
-	/// </summary>
-	public GameObject gameGroundLevel;
+    /// <summary>
+    /// The game ground level.
+    /// </summary>
+    public GameObject gameGroundLevel;
     /// <summary>
     /// the arrow used for the directive
     /// </summary>
     public GameObject Arrow;
-	/// <summary>
-	/// The particle system designated for use with this code, will draw particles along the directive line.
-	/// </summary>
-	public ParticleSystem LineParticles;
-	/// <summary>
-	/// The current set of directives along this player's path.
-	/// </summary>
-	List<Directive> directives;
-	/// <summary>
-	/// The current speed of the copter.
-	/// </summary>
-	public float speed;
-	/// <summary>
-	/// The amount of time until the copter begins moving again, in seconds
-	/// </summary>
-	float waitTime;
-	/// <summary>
-	/// Determines if the copter is moving.
-	/// </summary>
-	public bool moving;
-	/// <summary>
-	/// The next point along this copter's path.
-	/// </summary>
-	Vector3 target;
-	int draggedDirective;
-	int selDirective;
+    /// <summary>
+    /// The particle system designated for use with this code, will draw particles along the directive line.
+    /// </summary>
+    public ParticleSystem LineParticles;
+    /// <summary>
+    /// The current set of directives along this player's path.
+    /// </summary>
+    List<Directive> directives;
+    /// <summary>
+    /// The current speed of the copter.
+    /// </summary>
+    public float speed;
+    /// <summary>
+    /// The amount of time until the copter begins moving again, in seconds
+    /// </summary>
+    float waitTime;
+    /// <summary>
+    /// Determines if the copter is moving.
+    /// </summary>
+    public bool moving;
+    /// <summary>
+    /// The next point along this copter's path.
+    /// </summary>
+    Vector3 target;
+    int draggedDirective;
+    int selDirective;
     int currentDirective;
 
     public bool Drawing;
-	int currentPathPosition;
-	Vector2 pTouchPosition;
+    int currentPathPosition;
+    Vector2 pTouchPosition;
     Vector3 pMouse;
 
-	public static float FlashTimer;
-	public static string Message;
-	public GUISkin customSkin;
+    public static float FlashTimer;
+    public static string Message;
+    public GUISkin customSkin;
     Rect directiveEditingRect;
+    public float Energy;
 
-
-	void Start () 
-	{
-		directives = new List<Directive>();
-		draggedDirective = -1;
-		selDirective = -1;
-		FlashTimer = 0.0f;
+    void Start()
+    {
+        directives = new List<Directive>();
+        draggedDirective = -1;
+        selDirective = -1;
+        FlashTimer = 0.0f;
         speed = 0f;
-		Message = "";
-		
-		currentPathPosition = 0;
-		pTouchPosition = Vector3.zero;
+        Message = "";
+        Energy = 100;
+        currentPathPosition = 0;
+        pTouchPosition = Vector3.zero;
         pMouse = Vector3.zero;
         print("Creating starting directive");
         directives.Add(new Directive(PlayerCopter.transform.position, Instantiate(Arrow) as GameObject));
         currentDirective = 0;
-	}
+    }
 
-	void Update () 
-	{
-		foreach(Directive d in directives)
-			d.Update(LineParticles);
-		if (FlashTimer > 0.0f)
-			FlashTimer -= Time.deltaTime;
-		if (waitTime > 0.0f) 
-		{
-			waitTime -= Time.deltaTime;
-			if(waitTime < 0.0f)
-			{
-				moving = true;
-				waitTime = 0.0f;
-			}
-		}
+    void Update()
+    {
+        foreach (Directive d in directives)
+            d.Update(LineParticles);
+        if (FlashTimer > 0.0f)
+            FlashTimer -= Time.deltaTime;
+        if (waitTime > 0.0f)
+        {
+            waitTime -= Time.deltaTime;
+            if (waitTime < 0.0f)
+            {
+                moving = true;
+                waitTime = 0.0f;
+            }
+        }
 
-		if (moving) 
-		{
-			MovingAlong();
-			//goPlanePosition.transform.position = gameGrid.CopterLocation(copter);
-		}
-	}
-	void OnGUI() 
-	{
+        if (Energy == 0)
+        {
+            moving = false;
+        }
+        if (moving)
+        {
+            MovingAlong();
+            //goPlanePosition.transform.position = gameGrid.CopterLocation(copter);
+        }
+    }
+    void OnGUI()
+    {
         GUI.skin = customSkin;
-		// basic player instructions go here
-		if (FlashTimer > 0.0f) // for messaging the player involving action or inaction, set flashtimer > 0 and message to desired message
-		{
-			GUI.Label (new Rect(Screen.width * 0.1f, Screen.height * 0.4f, Screen.width * 0.8f, Screen.height * 0.2f), Message);
-		}
-		if(directives[0].Points.Count < 2)
-			GUI.Label (new Rect(Screen.width * 0.1f, Screen.height * 0.15f, Screen.width * 0.8f, Screen.height * 0.15f), 
-			           "Draw a path for your copter to follow by moving your finger across the screen");
-		else if(directives.Count < 2)
-			GUI.Label (new Rect(Screen.width * 0.3f, Screen.height * 0.15f, Screen.width * 0.4f, Screen.height * 0.15f), 
-			           "Add additional directives to control your copter by tapping twice");
+        // basic player instructions go here
+        if (FlashTimer > 0.0f) // for messaging the player involving action or inaction, set flashtimer > 0 and message to desired message
+        {
+            GUI.Label(new Rect(Screen.width * 0.1f, Screen.height * 0.4f, Screen.width * 0.8f, Screen.height * 0.2f), Message);
+        }
+        if (directives[0].Points.Count < 2)
+            GUI.Label(new Rect(Screen.width * 0.1f, Screen.height * 0.15f, Screen.width * 0.8f, Screen.height * 0.15f),
+                       "Draw a path for your copter to follow by moving your finger across the screen");
+        else if (directives.Count < 2)
+            GUI.Label(new Rect(Screen.width * 0.3f, Screen.height * 0.15f, Screen.width * 0.4f, Screen.height * 0.15f),
+                       "Add additional directives to control your copter by tapping twice");
 
         if (selDirective > -1)
         {
@@ -136,16 +142,16 @@ public class PlayerController : MonoBehaviour {
                     }
             }
         }
-	}
+    }
 
-	public void CopterControl(Camera cam) 
-	{
+    public void CopterControl(Camera cam)
+    {
 
-	}
+    }
 
-	#region Path Drawing and Editing
-	public void LineDrawingControl(Camera cam) 
-	{
+    #region Path Drawing and Editing
+    public void LineDrawingControl(Camera cam)
+    {
         if (Application.platform == RuntimePlatform.Android)
         {
             if (Input.touchCount > 0)
@@ -170,7 +176,7 @@ public class PlayerController : MonoBehaviour {
             Vector3 point = directives[selDirective].Position;
             directiveEditingRect = new Rect(cam.WorldToScreenPoint(point).x, Screen.height - cam.WorldToScreenPoint(point).y, 320, 220);
         }
-	}
+    }
 
     void TopDownEditMode(Camera cam)
     {
@@ -230,21 +236,21 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-	int getIndexOnTouch(Camera cam)
-	{
-		if (directives.Count > 0)
-		{
-			Ray ray = cam.ScreenPointToRay(Input.GetTouch(0).position);
-			RaycastHit hit;
-			if (Physics.Raycast(ray, out hit, cam.farClipPlane))
-			{
-				for (int i = 0; i < directives.Count; i++)
-					if (hit.collider.gameObject.Equals(directives[i].Pyramid))
-						return i;
-			}
-		}
-		return -1;
-	}
+    int getIndexOnTouch(Camera cam)
+    {
+        if (directives.Count > 0)
+        {
+            Ray ray = cam.ScreenPointToRay(Input.GetTouch(0).position);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, cam.farClipPlane))
+            {
+                for (int i = 0; i < directives.Count; i++)
+                    if (hit.collider.gameObject.Equals(directives[i].Pyramid))
+                        return i;
+            }
+        }
+        return -1;
+    }
     int getIndexOnClick(Camera cam)
     {
         if (directives.Count > 0)
@@ -260,41 +266,41 @@ public class PlayerController : MonoBehaviour {
         }
         return -1;
     }
-	
-	void SelectDirectiveAndDrag(Camera cam)
-	{
-		if (Input.GetTouch(0).phase == TouchPhase.Began)
-		{
-			if (selDirective == -1)
-			{
-				int t = getIndexOnTouch(cam);
-				
-				selDirective = t;
-				draggedDirective = t;
-				if (t > -1)
-					directives[t].Highlight = true;
-			}
-		}
-		if (draggedDirective > -1)
-		{
-			Vector3 dif = (Input.GetTouch(0).position - pTouchPosition);
-			Ray r = cam.ScreenPointToRay(Input.GetTouch(0).position);
-			float t = (directives[draggedDirective].Position.y - r.origin.y) / r.direction.y;
-			int draggedLineIndex = 0;
-			for (int i = 0; i < draggedDirective; i++)
-				draggedLineIndex += directives[i].Points.Count - 1;
-			
-			if (Input.touchCount == 2)
-				directives[draggedDirective].Set(r.GetPoint(t), draggedDirective, directives);
-			else
-				directives[draggedDirective].Set(directives[draggedDirective].Position + new Vector3(0, dif.y * 0.03f, 0), draggedDirective, directives);
-			
-			if (Input.GetTouch(0).phase == TouchPhase.Ended)
-			{
-				draggedDirective = -1;
-			}
-		}
-	}
+
+    void SelectDirectiveAndDrag(Camera cam)
+    {
+        if (Input.GetTouch(0).phase == TouchPhase.Began)
+        {
+            if (selDirective == -1)
+            {
+                int t = getIndexOnTouch(cam);
+
+                selDirective = t;
+                draggedDirective = t;
+                if (t > -1)
+                    directives[t].Highlight = true;
+            }
+        }
+        if (draggedDirective > -1)
+        {
+            Vector3 dif = (Input.GetTouch(0).position - pTouchPosition);
+            Ray r = cam.ScreenPointToRay(Input.GetTouch(0).position);
+            float t = (directives[draggedDirective].Position.y - r.origin.y) / r.direction.y;
+            int draggedLineIndex = 0;
+            for (int i = 0; i < draggedDirective; i++)
+                draggedLineIndex += directives[i].Points.Count - 1;
+
+            if (Input.touchCount == 2)
+                directives[draggedDirective].Set(r.GetPoint(t), draggedDirective, directives);
+            else
+                directives[draggedDirective].Set(directives[draggedDirective].Position + new Vector3(0, dif.y * 0.03f, 0), draggedDirective, directives);
+
+            if (Input.GetTouch(0).phase == TouchPhase.Ended)
+            {
+                draggedDirective = -1;
+            }
+        }
+    }
     void SelectDirectiveAndDragWithMouse(Camera cam)
     {
         if (Input.GetMouseButtonDown(0))
@@ -327,7 +333,7 @@ public class PlayerController : MonoBehaviour {
                 draggedDirective = -1;
         }
     }
-    
+
 
     void DirectiveData(int id)
     {
@@ -358,59 +364,126 @@ public class PlayerController : MonoBehaviour {
         GUI.Label(new Rect(70, 142, 100, 30), "Speed");
         GUI.Label(new Rect(240, 142, 70, 30), d.Speed.ToString("0.00"));
         d.Speed = GUI.HorizontalSlider(new Rect(10, 145, 220, 30), d.Speed, 0.1f, 5.0f);
-        
+
         // THE WAIT TIME SLIDER
         GUI.Label(new Rect(70, 170, 100, 30), "Wait Time");
         GUI.Label(new Rect(240, 170, 70, 30), d.WaitTime.ToString("0.00") + "s");
         d.Speed = GUI.HorizontalSlider(new Rect(10, 170, 220, 30), d.WaitTime, 0.0f, 20.0f);
-        
+
         GUI.skin.button.fontSize = 18;
         GUI.Label(new Rect(30, 195, 250, 28), "# data points: " + d.Points.Count.ToString());
     }
-	#endregion
-	void MovingAlong()
-	{
-		if (Vector3.Distance(target, PlayerCopter.transform.position) > ((speed) * Time.deltaTime) && moving)
-		{
-			Vector3 direction = target = PlayerCopter.transform.position;
-			PlayerCopter.transform.position += direction * (speed) * Time.deltaTime;
-		}
-		else
-		{
-			currentPathPosition++;
-			if (currentPathPosition < directives[currentDirective].Points.Count)
-				target = directives[currentDirective].Points[currentPathPosition];
-			else
-				QueryDirective();
-		}
-	}
-	void AlignAllDirectives()
-	{
-		for (int i = 0; i < directives.Count; i++)
-			directives[i].Align(directives, i);
-	}
-	void QueryDirective()
-	{
-		currentDirective++;
-		if (currentDirective < directives.Count)
-		{
-			currentPathPosition = 0;
-			speed = directives[currentDirective].Speed;
-			PlayerCopter.transform.forward = directives[currentDirective].LookVector;
-			target = directives[currentDirective].Points[currentPathPosition];
-			waitTime = directives[currentDirective].WaitTime;
-			if (waitTime > 0.0f)
-				moving = false;
-		}
-		else
-		{
-			moving = false;
-			currentDirective--;
-		}
-	}
+    #endregion
+    void MovingAlong()
+    {
+        if (Vector3.Distance(target, PlayerCopter.transform.position) > ((speed) * Time.deltaTime) && moving)
+        {
+            Vector3 direction = target = PlayerCopter.transform.position;
+            PlayerCopter.transform.position += direction * (speed) * Time.deltaTime;
+        }
+        else
+        {
+            currentPathPosition++;
+            if (currentPathPosition < directives[currentDirective].Points.Count)
+                target = directives[currentDirective].Points[currentPathPosition];
+            else
+                QueryDirective();
+        }
+    }
+    void AlignAllDirectives()
+    {
+        for (int i = 0; i < directives.Count; i++)
+            directives[i].Align(directives, i);
+    }
+    void QueryDirective()
+    {
+        currentDirective++;
+        if (currentDirective < directives.Count)
+        {
+            currentPathPosition = 0;
+            speed = directives[currentDirective].Speed;
+            PlayerCopter.transform.forward = directives[currentDirective].LookVector;
+            target = directives[currentDirective].Points[currentPathPosition];
+            waitTime = directives[currentDirective].WaitTime;
+            if (waitTime > 0.0f)
+                moving = false;
+        }
+        else
+        {
+            moving = false;
+            currentDirective--;
+        }
+    }
     public static void FlashMessage(string m, float t)
     {
         Message = m;
         FlashTimer = t;
+    }
+
+    /// <summary>
+    /// One way of calculating energy usage based on obstacles hit
+    /// </summary>
+    /// <param name="collider"></param>
+    //private void OnCollisionEnter(Collider collider)
+    //{
+    //    if (collider.gameObject.tag == "Obstacle")
+    //    {
+    //       Energy -= collider.gameObject.GetComponent<Obstacle>().EnergyConsumptionMultiplier;
+    //    }
+
+    //}
+
+    /// <summary>
+    /// Sets energy and verifies it does not go below 0 or above 100
+    /// Does not work as float is intended. 
+    /// </summary>
+    /// <param name="EnergyValue"></param>
+    /// <returns></returns>
+    public float SetEnergy(float EnergyValue)
+    {
+       
+        for (int i = 0; i < Convert.ToUInt32(EnergyValue); i++)
+        {
+            if (EnergyValue < 0)
+            {
+                if (Energy > 0)
+                {
+                    Energy--;
+                }
+                else
+                {
+                    moving = false; //might not want this here
+                    return 0;
+                }
+            }
+
+            if (EnergyValue > 0)
+            {
+                for (int j = 0; j < EnergyValue; j++)
+                {
+                    if (Energy < 100)
+                    {
+                        Energy++;
+                    }
+                    else
+                        return 100;
+                }
+            }
+        }
+
+        return Energy;
+    }
+
+    /// <summary>
+    /// Trying to increase energy level. 
+    /// </summary>
+    /// <param name="collider"></param>
+    public void OnTriggerEnter(Collider collider)
+    {
+        if (collider.tag == "Obstacle")
+        {
+            if (Energy < 100)
+                Energy = 100;
+        }
     }
 }

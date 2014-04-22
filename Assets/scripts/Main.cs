@@ -51,7 +51,8 @@ public class Main : MonoBehaviour
 
     void Start()
     {
-        gameGrid = new ScoreBoard(gameGroundLevel.transform);
+        gameGrid = new ScoreBoard(gameGroundLevel.transform, GameObject.FindGameObjectsWithTag("Obstacle"));
+
         x = (int)(gameGroundLevel.transform.localScale.x * 10);
         z = (int)(gameGroundLevel.transform.localScale.z * 10);
         offset = new Vector3(gameGroundLevel.transform.position.x - x * 0.5f, 0, gameGroundLevel.transform.position.z - z * 0.5f);
@@ -66,7 +67,7 @@ public class Main : MonoBehaviour
     void Update()
     {
         QuadCopter1.speed = sliderValue;
-
+        QuadCopter1.GetComponent<EnergyBar>().barDisplay = QuadCopter1.Energy * 0.01f;
         if (!QuadCopter1.Drawing)
             startButton.enabled = true;
         else
@@ -86,36 +87,48 @@ public class Main : MonoBehaviour
             TouchCameraControls();
         }
 
-        for (int i = 0; i < x; i++)
+        //Setting up and checking copter position on the GameBoard
+        foreach (BoardSquare square in gameGrid.GameBoard)
         {
-            for (int j = 0; j < z; j++)
+            if ((Vector2.Distance(new Vector2(QuadCopter1.transform.position.x, QuadCopter1.transform.position.z), square.Position) <= 1))
             {
-                if ((Vector3.Distance(QuadCopter1.transform.position, offset + new Vector3(i, 5, j)) <= 1))
+                if (!square.Traversed)
                 {
-                    Instantiate(boardSquare, offset + new Vector3(i, 5, j), Quaternion.identity);
+                    square.Traversed = true;
+                    score.CurrentScore += square.PointValue;
+
+                    QuadCopter1.Energy += square.EnergyUsed;
+                    //Not working
+                    //QuadCopter1.SetEnergy(square.EnergyConsumptionMultiplier);
+                    
+                    Instantiate(boardSquare, new Vector3(square.Position.x, 5, square.Position.y), Quaternion.identity);
                 }
             }
+
         }
     }
 
     void OnGUI()
     {
+        GUI.skin = GUISkin;
         MouseControls();
 
+        GUI.Box(new Rect(0.5f, 0.5f, 150, 150), "Hello");
+        GUI.Label(new Rect(Screen.width * 0.85f, Screen.height * 0.05f, 100, 50), score.CurrentScore.ToString());
         if (TopDownEditingCam.enabled && !CopterCam.enabled)
         {
-          if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
-          {
-              QuadCopter1.Drawing = false;
-              QuadCopter1.moving = true;
-              startButton.enabled = false;
-              startButton.transform.position = new Vector3(9999, 9999, -100);
-              //QuadCopter1.transform.position = directives[0].Points[0];
-              //curDirective = 0;
-              //pathPosCount = 0;
-              //target = directives[curDirective].Points[pathPosCount];
-              //QuadCopter1.gameObject.SetActive(true);
-          }
+            if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
+            {
+                QuadCopter1.Drawing = false;
+                QuadCopter1.moving = true;
+                startButton.enabled = false;
+                startButton.transform.position = new Vector3(9999, 9999, -100);
+                //QuadCopter1.transform.position = directives[0].Points[0];
+                //curDirective = 0;
+                //pathPosCount = 0;
+                //target = directives[curDirective].Points[pathPosCount];
+                //QuadCopter1.gameObject.SetActive(true);
+            }
         }
 
         sliderValue = GUI.VerticalSlider(new Rect(Screen.width * 0.025f, Screen.height * 0.6f, 75, 250), sliderValue, 10.0f, 0.0f, speedSlider, speedButton);
@@ -151,7 +164,7 @@ public class Main : MonoBehaviour
                 {
                     TopDownEditingCam.transform.position -= (new Vector3(dMouse.x, 0, dMouse.y) * TopDownEditingCam.orthographicSize) * 0.003f;
                 }
-                
+
                 float scroll = Input.GetAxis("Mouse ScrollWheel");
                 if (scroll > 0)
                 {

@@ -10,10 +10,13 @@ public class ScoreBoard
 {
     public int GameBoardScore { get; set; }
     public BoardSquare[,] GameBoard { get; set; }
+    public List<GameObject> Obstacles;
 
     // Setup Game Board
-    public ScoreBoard(Transform transform)
+    public ScoreBoard(Transform transform, GameObject[] obstacles)
     {
+        Obstacles = new List<GameObject>();
+        Obstacles.AddRange(obstacles);
         int x = (int)(transform.localScale.x * 10);
         int z = (int)(transform.localScale.z * 10);
         Vector2 offset = new Vector2(transform.position.x - x * 0.5f, transform.position.z - z * 0.5f);
@@ -57,7 +60,7 @@ public class ScoreBoard
         {
             if (square.Traversed)
             {
-                points = square.Point;
+                points = square.PointValue;
             }
         }
         return points;
@@ -68,7 +71,7 @@ public class ScoreBoard
     /// </summary>
     /// <param name="copter"></param>
     /// <returns></returns>
-    public Vector3 CopterLocation(GameObject copter)
+    public Vector3 CopterLocation(Obstacle copter)
     {
         float smallest = int.MaxValue;
         BoardSquare bsReturn = new BoardSquare();
@@ -102,6 +105,20 @@ public class ScoreBoard
         return GameBoard.Length.ToString();
     }
 
-   
+    private void SetupObstacles()
+    {
+        foreach (BoardSquare square in this.GameBoard)
+        {
+            foreach(GameObject obstacle in Obstacles){
+                if (Vector2.Distance(new Vector2(obstacle.transform.position.x, obstacle.transform.position.z), square.Position) <= 1)
+                {
+                    square.containsObstacle = true;
+                    square.Obstacle = obstacle;
+                    square.EnergyConsumptionMultiplier = obstacle.GetComponent<Obstacle>().EnergyConsumptionMultiplier;
+                }
+            }
+        }
+
+    }
 
 }
