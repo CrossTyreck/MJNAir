@@ -114,12 +114,12 @@ public class PlayerController : MonoBehaviour
         {
             GUI.Label(new Rect(Screen.width * 0.1f, Screen.height * 0.4f, Screen.width * 0.8f, Screen.height * 0.2f), Message);
         }
-        if (directives[0].Points.Count < 2)
-            GUI.Label(new Rect(Screen.width * 0.1f, Screen.height * 0.15f, Screen.width * 0.8f, Screen.height * 0.15f),
-                       "Draw a path for your copter to follow by moving your finger across the screen");
-        else if (directives.Count < 2)
-            GUI.Label(new Rect(Screen.width * 0.3f, Screen.height * 0.15f, Screen.width * 0.4f, Screen.height * 0.15f),
-                       "Add additional directives to control your copter by tapping twice");
+        //if (directives[0].Points.Count < 2)
+        //    GUI.Label(new Rect(Screen.width * 0.1f, Screen.height * 0.15f, Screen.width * 0.8f, Screen.height * 0.15f),
+        //               "Draw a path for your copter to follow by moving your finger across the screen");
+        //else if (directives.Count < 2)
+        //    GUI.Label(new Rect(Screen.width * 0.3f, Screen.height * 0.15f, Screen.width * 0.4f, Screen.height * 0.15f),
+        //               "Add additional directives to control your copter by tapping twice");
 
         if (selDirective > -1)
         {

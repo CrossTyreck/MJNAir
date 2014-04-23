@@ -16,4 +16,10 @@ public class BottomRight : MonoBehaviour {
 	{
 		parent.texture = main;
 	}
+
+    void OnMouseDown()
+    {
+        //Controls
+        Application.LoadLevel(6);
+    }
 }

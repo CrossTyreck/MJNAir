@@ -18,4 +18,10 @@ public class TopLeft : MonoBehaviour {
 	{
 		parent.texture = main;
 	}
+
+    void OnMouseDown()
+    {
+        //Settings
+        Application.LoadLevel(6);
+    }
 }

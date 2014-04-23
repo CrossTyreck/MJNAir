@@ -18,4 +18,10 @@ public class TopRight : MonoBehaviour {
 	{
 		parent.texture = main;
 	}
+
+    void OnMouseDown()
+    {
+        //Credits
+        Application.LoadLevel(7);
+    }
 }

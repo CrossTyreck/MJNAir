@@ -118,7 +118,7 @@ float currentRotation = 0.0f;
                     //Not working
                     //QuadCopter1.SetEnergy(square.EnergyConsumptionMultiplier);
                     
-                    Instantiate(boardSquare, new Vector3(square.Position.x, 5, square.Position.y), Quaternion.identity);
+                  
                 }
             }
 
@@ -148,11 +148,6 @@ float currentRotation = 0.0f;
                     QuadCopter1.Moving = true;
                     startButton.enabled = false;
                     startButton.transform.position = new Vector3(9999, 9999, -100);
-                    //QuadCopter1.transform.position = directives[0].Points[0];
-                    //curDirective = 0;
-                    //pathPosCount = 0;
-                    //target = directives[curDirective].Points[pathPosCount];
-                    //QuadCopter1.gameObject.SetActive(true);
                 }
                 break;
         }        
