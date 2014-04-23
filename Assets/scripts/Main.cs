@@ -76,12 +76,13 @@ float currentRotation = 0.0f;
             {
                 currentRotation += Input.GetAxis("Horizontal") * Time.deltaTime * 100;
                 rotation.eulerAngles = new Vector3(0, currentRotation, 0);
-                obstacle.transform.position = rotation * radius;
+                //obstacle.transform.position = rotation * radius;
                 obstacle.transform.Rotate(rotation * radius);
              
             }
             
         }
+
 
         QuadCopter1.GetComponent<EnergyBar>().barDisplay = QuadCopter1.Energy * 0.01f;
         if (!QuadCopter1.Drawing)
@@ -129,7 +130,9 @@ float currentRotation = 0.0f;
         GUI.skin = GUISkin;
         MouseControls();
 
-        GUI.Box(new Rect(0.5f, 0.5f, 150, 150), "Hello");
+        if(GUI.Button(new Rect(0.5f, 0.5f, 100, 50), "Exit"))
+            Application.Quit();
+
         GUI.Label(new Rect(Screen.width * 0.85f, Screen.height * 0.05f, 100, 50), score.CurrentScore.ToString());
         switch (camtype)
         {
@@ -138,6 +141,7 @@ float currentRotation = 0.0f;
                 QuadCopter1.speed = sliderValue;
                 break;
             case CameraType.TopDownEditing:
+                sliderValue = GUI.VerticalSlider(new Rect(Screen.width * 0.025f, Screen.height * 0.6f, 75, 250), sliderValue, 10.0f, 0.0f, speedSlider, speedButton);
                 if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
                 {
                     QuadCopter1.Drawing = false;
@@ -214,9 +218,9 @@ float currentRotation = 0.0f;
                             lastPinchDistance = pinchDistance;
                         float deltaPinchDistance = lastPinchDistance - pinchDistance;
                         if (Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 5)
-                            PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * deltaPinchDistance;
+                            PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * deltaPinchDistance * 0.1f;
                         else if (deltaPinchDistance > 0)
-                            PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * deltaPinchDistance;
+                            PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * deltaPinchDistance * 0.1f;
                     }
                     else
                     {
@@ -248,10 +252,10 @@ float currentRotation = 0.0f;
                         if (deltaPinchDistance > 0)
                         {
                             if (TopDownEditingCam.orthographicSize > 5)
-                                TopDownEditingCam.orthographicSize -= deltaPinchDistance;
+                                TopDownEditingCam.orthographicSize -= deltaPinchDistance * 0.1f;
                         }
                         if (deltaPinchDistance < 0)
-                            TopDownEditingCam.orthographicSize -= deltaPinchDistance;
+                            TopDownEditingCam.orthographicSize -= deltaPinchDistance * 0.1f;
 
                         lastPinchDistance = pinchDistance;
                     }
@@ -298,16 +302,9 @@ float currentRotation = 0.0f;
 
     void CameraCheckingTouch()
     {
-        //Swipe left
-        if (Input.touchCount == 4)
+        if (Input.touchCount >= 3)
         {
-            camtype = (CameraType)(((int)camtype + 1) % 4);
-            CameraSwitch();
-        }
-        //Swipe right
-        if (Input.touchCount == 4)
-        {
-            camtype = ((camtype - 1) < 0 ? camtype = CameraType.Copter : camtype--);
+            camtype = (CameraType)(((int)camtype + 1) % 3);
             CameraSwitch();
         }
     }

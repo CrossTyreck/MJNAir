@@ -80,6 +80,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+
         foreach (Directive d in directives)
             d.Update(LineParticles);
         if (FlashTimer > 0.0f)
