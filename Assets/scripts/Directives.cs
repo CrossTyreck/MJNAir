@@ -54,6 +54,7 @@ public class Directive
     /// <value>The wait time.</value>
     public float WaitTime = 0.0f;
 
+    public bool LookEdit = false;
 	public LineRenderer Line;
 	public int VertexCount;
     // Use this for initialization

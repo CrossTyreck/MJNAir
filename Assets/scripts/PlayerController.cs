@@ -304,6 +304,31 @@ public class PlayerController : MonoBehaviour
                 draggedDirective = -1;
             }
         }
+        if (selDirective > -1)
+        {
+            if (directives[selDirective].LookEdit)
+            {
+                if (Input.touchCount == 1)
+                {
+                    Vector2 dTouch = Input.GetTouch(0).deltaPosition;
+                    if (dTouch.x > 1.0f || dTouch.x < -1.0f)
+                    {
+                        directives[selDirective].Pyramid.transform.Rotate(dTouch.x * 0.01f, 0f, 0f);
+                        directives[selDirective].LookVector = directives[selDirective].Pyramid.transform.forward;
+                    }
+                    if (dTouch.x > 1.0f || dTouch.x < -1.0f)
+                    {
+                        directives[selDirective].Pyramid.transform.Rotate(0f, dTouch.y * 0.01f, 0f);
+                        directives[selDirective].LookVector = directives[selDirective].Pyramid.transform.forward;
+                    }
+                    if (Input.GetTouch(0).phase == TouchPhase.Ended)
+                    {
+                        directives[selDirective].LookEdit = false;
+                        draggedDirective = selDirective = -1;
+                    }
+                }
+            }
+        }
     }
     void SelectDirectiveAndDragWithMouse(Camera cam)
     {
@@ -336,6 +361,28 @@ public class PlayerController : MonoBehaviour
             if (Input.GetMouseButtonUp(0))
                 draggedDirective = -1;
         }
+        if (selDirective > -1)
+        {
+            if (directives[selDirective].LookEdit)
+            {
+                Vector3 dMouse = Input.mousePosition - pMouse;
+                if(dMouse.x > 1.0f || dMouse.x < -1.0f)
+                {
+                    directives[selDirective].Pyramid.transform.Rotate(dMouse.x * 0.5f, 0f, 0f);
+                    directives[selDirective].LookVector = directives[selDirective].Pyramid.transform.forward;
+                }
+                if (dMouse.x > 1.0f || dMouse.x < -1.0f)
+                {
+                    directives[selDirective].Pyramid.transform.Rotate(0f, dMouse.y * 0.5f, 0f);
+                    directives[selDirective].LookVector = directives[selDirective].Pyramid.transform.forward;
+                }
+                if (Input.GetMouseButtonDown(0))
+                {
+                    directives[selDirective].LookEdit = false;
+                    draggedDirective = selDirective = -1;
+                }
+            }
+        }
     }
 
 
@@ -345,9 +392,11 @@ public class PlayerController : MonoBehaviour
             return;
         Directive d = directives[selDirective];
         if (GUI.Button(new Rect(5, 25, 310, 20), "Pos X:" + d.Position.x.ToString("0.0") + " Y:" + d.Position.y.ToString("0.0") + " Z:" + d.Position.z.ToString("0.0")))
-        {
-            draggedDirective = selDirective;
-        }
+            if(draggedDirective != selDirective)
+                draggedDirective = selDirective;
+
+        if (GUI.Button(new Rect(5, 50, 310, 20), "Look X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0")))
+            d.LookEdit = true;
         else if (GUI.Button(new Rect(5, 85, 200, 20), "Arc Type: " + d.Alignment.ToString()))
         {
             d.Alignment = (ArcAlignment)(((int)d.Alignment + 1) % 7);
@@ -360,7 +409,7 @@ public class PlayerController : MonoBehaviour
         {
             AlignAllDirectives();
         }
-        GUI.Button(new Rect(5, 50, 310, 20), "Look X:" + d.LookVector.x.ToString("0.0") + " Y:" + d.LookVector.y.ToString("0.0") + " Z:" + d.LookVector.z.ToString("0.0"));
+        
 
         // THE SPEED SLIDER
         GUI.skin = customSkin;

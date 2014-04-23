@@ -264,6 +264,9 @@ float currentRotation = 0.0f;
                     lastPinchDistance = 0f;
                 float scroll = Input.GetAxis("Mouse ScrollWheel");
                 break;
+            case CameraType.Copter:
+
+                break;
         }
     }
 
