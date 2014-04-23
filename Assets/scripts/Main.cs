@@ -83,7 +83,6 @@ float currentRotation = 0.0f;
             
         }
 
-        QuadCopter1.speed = sliderValue;
         QuadCopter1.GetComponent<EnergyBar>().barDisplay = QuadCopter1.Energy * 0.01f;
         if (!QuadCopter1.Drawing)
             startButton.enabled = true;
@@ -211,6 +210,8 @@ float currentRotation = 0.0f;
                     float pinchDistance = Vector2.Distance(Input.GetTouch(0).position, Input.GetTouch(1).position);
                     if (pinchDistance > 50f)
                     { // THIS NUMBER IS UNTESTED
+                        if (lastPinchDistance == 0f)
+                            lastPinchDistance = pinchDistance;
                         float deltaPinchDistance = lastPinchDistance - pinchDistance;
                         if (Vector3.Distance(PerspectiveEditingCam.transform.position, terrainCenter) > 5)
                             PerspectiveEditingCam.transform.position += PerspectiveEditingCam.transform.forward * deltaPinchDistance;
@@ -231,23 +232,32 @@ float currentRotation = 0.0f;
                     }
                     lastPinchDistance = pinchDistance;
                 }
+                else
+                    lastPinchDistance = 0f;
                 break;
             case CameraType.TopDownEditing:
                 if (Input.touchCount == 2)
                 {
                     float pinchDistance = Vector2.Distance(Input.GetTouch(0).position, Input.GetTouch(1).position);
                     TopDownEditingCam.transform.position -= (new Vector3(Input.GetTouch(0).deltaPosition.x, 0, Input.GetTouch(0).deltaPosition.y) * TopDownEditingCam.orthographicSize) * 0.003f;
-                    float deltaPinchDistance = lastPinchDistance - pinchDistance;
-                    if (deltaPinchDistance > 0)
+                    if (pinchDistance > 50f)
                     {
-                        if (TopDownEditingCam.orthographicSize > 5)
+                        if (lastPinchDistance == 0f)
+                            lastPinchDistance = pinchDistance;
+                        float deltaPinchDistance = lastPinchDistance - pinchDistance;
+                        if (deltaPinchDistance > 0)
+                        {
+                            if (TopDownEditingCam.orthographicSize > 5)
+                                TopDownEditingCam.orthographicSize -= deltaPinchDistance;
+                        }
+                        if (deltaPinchDistance < 0)
                             TopDownEditingCam.orthographicSize -= deltaPinchDistance;
-                    }
-                    if (deltaPinchDistance < 0)
-                        TopDownEditingCam.orthographicSize -= deltaPinchDistance * 3.0f;
 
-                    lastPinchDistance = pinchDistance;
+                        lastPinchDistance = pinchDistance;
+                    }
                 }
+                else
+                    lastPinchDistance = 0f;
                 float scroll = Input.GetAxis("Mouse ScrollWheel");
                 break;
         }
