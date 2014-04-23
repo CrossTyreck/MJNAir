@@ -76,13 +76,9 @@ float currentRotation = 0.0f;
             {
                 currentRotation += Input.GetAxis("Horizontal") * Time.deltaTime * 100;
                 rotation.eulerAngles = new Vector3(0, currentRotation, 0);
-                //obstacle.transform.position = rotation * radius;
                 obstacle.transform.Rotate(rotation * radius);
-             
             }
-            
         }
-
 
         QuadCopter1.GetComponent<EnergyBar>().barDisplay = QuadCopter1.Energy * 0.01f;
         if (!QuadCopter1.Drawing)
