@@ -304,8 +304,11 @@ float currentRotation = 0.0f;
     {
         if (Input.touchCount >= 3)
         {
-            camtype = (CameraType)(((int)camtype + 1) % 3);
-            CameraSwitch();
+            if (Input.GetTouch(2).phase == TouchPhase.Ended)
+            {
+                camtype = (CameraType)(((int)camtype + 1) % 3);
+                CameraSwitch();
+            }
         }
     }
 
