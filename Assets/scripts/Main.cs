@@ -70,16 +70,6 @@ float currentRotation = 0.0f;
 
     void Update()
     {
-        foreach (GameObject obstacle in gameGrid.Obstacles)
-        {
-            if (obstacle.name == "Bee")
-            {
-                currentRotation += Input.GetAxis("Horizontal") * Time.deltaTime * 100;
-                rotation.eulerAngles = new Vector3(0, currentRotation, 0);
-                obstacle.transform.Rotate(rotation * radius);
-            }
-        }
-
         QuadCopter1.GetComponent<EnergyBar>().barDisplay = QuadCopter1.Energy * 0.01f;
         if (!QuadCopter1.Drawing)
             startButton.enabled = true;
@@ -133,11 +123,10 @@ float currentRotation = 0.0f;
         switch (camtype)
         {
             case CameraType.Copter:
-                sliderValue = GUI.VerticalSlider(new Rect(Screen.width * 0.025f, Screen.height * 0.6f, 75, 250), sliderValue, 10.0f, 0.0f, speedSlider, speedButton);
-                QuadCopter1.speed = sliderValue;
+                Time.timeScale = sliderValue = GUI.VerticalSlider(new Rect(Screen.width * 0.025f, Screen.height * 0.6f, 75, 250), sliderValue, 2.0f, 0.0f, speedSlider, speedButton);
                 break;
             case CameraType.TopDownEditing:
-                sliderValue = GUI.VerticalSlider(new Rect(Screen.width * 0.025f, Screen.height * 0.6f, 75, 250), sliderValue, 10.0f, 0.0f, speedSlider, speedButton);
+                Time.timeScale = sliderValue = GUI.VerticalSlider(new Rect(Screen.width * 0.025f, Screen.height * 0.6f, 75, 250), sliderValue, 2.0f, 0.0f, speedSlider, speedButton);
                 if (Input.GetMouseButtonDown(0) && startButton.HitTest(Input.mousePosition))
                 {
                     QuadCopter1.Drawing = false;

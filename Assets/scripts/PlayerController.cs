@@ -58,7 +58,8 @@ public class PlayerController : MonoBehaviour
     public static string Message;
     public GUISkin customSkin;
     Rect directiveEditingRect;
-    public float Energy;
+    private float energy;
+    public float Energy { get { return energy; } set { energy = Mathf.Clamp(value, 0, 100); if (energy <= 0.0001f) Moving = false; } }
 
     void Start()
     {
@@ -483,72 +484,5 @@ public class PlayerController : MonoBehaviour
     {
         Message = m;
         FlashTimer = t;
-    }
-
-    /// <summary>
-    /// One way of calculating energy usage based on obstacles hit
-    /// </summary>
-    /// <param name="collider"></param>
-    //private void OnCollisionEnter(Collider collider)
-    //{
-    //    if (collider.gameObject.tag == "Obstacle")
-    //    {
-    //       Energy -= collider.gameObject.GetComponent<Obstacle>().EnergyConsumptionMultiplier;
-    //    }
-
-    //}
-
-    /// <summary>
-    /// Sets energy and verifies it does not go below 0 or above 100
-    /// Does not work as float is intended. 
-    /// </summary>
-    /// <param name="EnergyValue"></param>
-    /// <returns></returns>
-    public float SetEnergy(float EnergyValue)
-    {
-       
-        for (int i = 0; i < Convert.ToUInt32(EnergyValue); i++)
-        {
-            if (EnergyValue < 0)
-            {
-                if (Energy > 0)
-                {
-                    Energy--;
-                }
-                else
-                {
-                    Moving = false; //might not want this here
-                    return 0;
-                }
-            }
-
-            if (EnergyValue > 0)
-            {
-                for (int j = 0; j < EnergyValue; j++)
-                {
-                    if (Energy < 100)
-                    {
-                        Energy++;
-                    }
-                    else
-                        return 100;
-                }
-            }
-        }
-
-        return Energy;
-    }
-
-    /// <summary>
-    /// Trying to increase energy level. 
-    /// </summary>
-    /// <param name="collider"></param>
-    public void OnTriggerEnter(Collider collider)
-    {
-        if (collider.tag == "Obstacle")
-        {
-            if (Energy < 100)
-                Energy = 100;
-        }
     }
 }
