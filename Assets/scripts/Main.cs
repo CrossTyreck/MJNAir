@@ -177,6 +177,9 @@ float currentRotation = 0.0f;
                 if (scroll < 0)
                     TopDownEditingCam.orthographicSize -= scroll * 3.0f;
                 break;
+            case CameraType.Copter:
+
+                break;
         }
         pMouse = Input.mousePosition;
     }
@@ -263,8 +266,8 @@ float currentRotation = 0.0f;
                 QuadCopter1.LineDrawingControl(PerspectiveEditingCam);
                 break;
             case CameraType.Copter:
-                if (Input.GetMouseButton(0))
-                    QuadCopter1.transform.Rotate(Input.mousePosition, (0.5f * Time.deltaTime) * Mathf.Rad2Deg, relativeTo);
+                QuadCopter1.CopterControl(CopterCam);
+                    
                 break;
         }
     }

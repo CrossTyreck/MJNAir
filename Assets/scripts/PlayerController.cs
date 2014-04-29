@@ -102,7 +102,6 @@ public class PlayerController : MonoBehaviour
         }
         if (Moving)
         {
-
             MovingAlong();
             //goPlanePosition.transform.position = gameGrid.CopterLocation(copter);
         }
@@ -151,7 +150,10 @@ public class PlayerController : MonoBehaviour
 
     public void CopterControl(Camera cam)
     {
-
+        float delta = Vector3.Distance(new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0), Input.mousePosition);
+        if(delta > 100f)
+            transform.forward += cam.ScreenPointToRay(Input.mousePosition).direction * 0.02f;
+        //transform.
     }
 
     #region Path Drawing and Editing
