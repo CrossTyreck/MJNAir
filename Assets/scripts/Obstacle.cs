@@ -12,14 +12,14 @@ public class Obstacle : MonoBehaviour
     void Start()
     {
         currentRotation = 0f;
-        Vector2 v =  Random.insideUnitCircle * 10f;
+        Vector2 v =  Random.insideUnitCircle * 5f;
         rotateAroundPoint = transform.position + new Vector3(v.x, 0f, v.y);
     }
     void Update()
     {
         if (name == "Bee")
         {
-            transform.RotateAround(rotateAroundPoint, Vector3.up, Time.deltaTime * 100f);
+            transform.RotateAround(rotateAroundPoint, transform.up, Time.deltaTime * 100f);
             transform.forward = Vector3.Cross(rotateAroundPoint - transform.position, transform.up);
         }
     }

@@ -1,0 +1,197 @@
+fileFormatVersion: 2
+guid: bfd0bf8d0065945b39d9cbd6930a1736
+ModelImporter:
+  serializedVersion: 16
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: pCylinder1
+    100004: pCylinder2
+    100006: pCylinder3
+    100008: pCylinder4
+    100010: pCylinder5
+    100012: pCylinder6
+    100014: pCylinder7
+    100016: pCylinder8
+    100018: pCylinder9
+    100020: pSolid1
+    100022: pSolid2
+    100024: pSolid3
+    100026: pSolid4
+    100028: pSphere1
+    100030: pSphere2
+    400000: //RootNode
+    400002: pCylinder1
+    400004: pCylinder2
+    400006: pCylinder3
+    400008: pCylinder4
+    400010: pCylinder5
+    400012: pCylinder6
+    400014: pCylinder7
+    400016: pCylinder8
+    400018: pCylinder9
+    400020: pSolid1
+    400022: pSolid2
+    400024: pSolid3
+    400026: pSolid4
+    400028: pSphere1
+    400030: pSphere2
+    2300000: pCylinder1
+    2300002: pCylinder2
+    2300004: pCylinder3
+    2300006: pCylinder4
+    2300008: pCylinder5
+    2300010: pCylinder6
+    2300012: pCylinder7
+    2300014: pCylinder8
+    2300016: pCylinder9
+    2300018: pSolid1
+    2300020: pSolid2
+    2300022: pSolid3
+    2300024: pSolid4
+    2300026: pSphere1
+    2300028: pSphere2
+    3300000: pCylinder1
+    3300002: pCylinder2
+    3300004: pCylinder3
+    3300006: pCylinder4
+    3300008: pCylinder5
+    3300010: pCylinder6
+    3300012: pCylinder7
+    3300014: pCylinder8
+    3300016: pCylinder9
+    3300018: pSolid1
+    3300020: pSolid2
+    3300022: pSolid3
+    3300024: pSolid4
+    3300026: pSphere1
+    3300028: pSphere2
+    4300000: pSphere1
+    4300002: pSphere2
+    4300004: pSolid1
+    4300006: pSolid2
+    4300008: pCylinder1
+    4300010: pSolid3
+    4300012: pSolid4
+    4300014: pCylinder2
+    4300016: pCylinder3
+    4300018: pCylinder4
+    4300020: pCylinder5
+    4300022: pCylinder6
+    4300024: pCylinder7
+    4300026: pCylinder8
+    4300028: pCylinder9
+    7400000: Take 001
+    7400002: fly
+    9500000: //RootNode
+    11100000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Take 001
+      takeName: Take 001
+      firstFrame: 1
+      lastFrame: 10
+      wrapMode: 2
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 1
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: pCylinder1
+        weight: 1
+      - path: pCylinder2
+        weight: 1
+      - path: pCylinder3
+        weight: 1
+      - path: pCylinder4
+        weight: 1
+      - path: pCylinder5
+        weight: 1
+      - path: pCylinder6
+        weight: 1
+      - path: pCylinder7
+        weight: 1
+      - path: pCylinder8
+        weight: 1
+      - path: pCylinder9
+        weight: 1
+      - path: pSolid1
+        weight: 1
+      - path: pSolid2
+        weight: 1
+      - path: pSolid3
+        weight: 1
+      - path: pSolid4
+        weight: 1
+      - path: pSphere1
+        weight: 1
+      - path: pSphere2
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: .00999999978
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  additionalBone: 0
+  userData: 
